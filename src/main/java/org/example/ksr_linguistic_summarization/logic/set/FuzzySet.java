@@ -40,11 +40,11 @@ public class FuzzySet {
         return membershipFunction.getMembership(x);
     }
 
-    FuzzySet power(double r) {
+    public FuzzySet power(double r) {
         return null;
     }
 
-    FuzzySet normalize() {
+    public FuzzySet normalize() {
         return null;
     }
 
