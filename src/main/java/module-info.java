@@ -12,8 +12,6 @@ module org.example.ksr_linguistic_summarization {
     exports org.example.ksr_linguistic_summarization;
     exports org.example.ksr_linguistic_summarization.view;
     opens org.example.ksr_linguistic_summarization.view to javafx.fxml;
-    exports org.example.ksr_linguistic_summarization.logic;
-    opens org.example.ksr_linguistic_summarization.logic to javafx.fxml;
     exports org.example.ksr_linguistic_summarization.logic.functions;
     opens org.example.ksr_linguistic_summarization.logic.functions to javafx.fxml;
     exports org.example.ksr_linguistic_summarization.logic.set;

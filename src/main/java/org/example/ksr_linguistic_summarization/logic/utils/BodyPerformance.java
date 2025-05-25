@@ -10,15 +10,31 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class BodyPerformance {
-    private Long age;
+    private double age;
     private char gender;
     private double heightCm;
     private double weightKg;
     private double bodyFatPercentage;
-    private Long diastolic;
-    private Long systolic;
+    private double diastolic;
+    private double systolic;
     private double gripForce;
     private double sitAndBendForwardCm;
-    private Long sitUpsCounts;
-    private Long broadJumpCm;
+    private double sitUpsCounts;
+    private double broadJumpCm;
+
+    public double getAttribute(String name) {
+        return switch (name.toLowerCase()) {
+            case "age" -> age;
+            case "heightcm" -> heightCm;
+            case "weightkg" -> weightKg;
+            case "bodyfatpercentage" -> bodyFatPercentage;
+            case "diastolic" -> diastolic;
+            case "systolic" -> systolic;
+            case "gripforce" -> gripForce;
+            case "sitandbendforwardcm" -> sitAndBendForwardCm;
+            case "situpscounts" -> sitUpsCounts;
+            case "broadjumpcm" -> broadJumpCm;
+            default -> throw new IllegalArgumentException("Unknown or unsupported numeric attribute: " + name);
+        };
+    }
 }

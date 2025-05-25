@@ -40,6 +40,18 @@ public class FuzzySet {
         return membershipFunction.getMembership(x);
     }
 
+    FuzzySet power(double r) {
+        return null;
+    }
+
+    FuzzySet normalize() {
+        return null;
+    }
+
+    boolean isConvex() {
+        return true;
+    }
+
     public FuzzySet union(FuzzySet fuzzySet) {
         return fuzzySet;
     }
