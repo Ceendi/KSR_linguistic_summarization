@@ -6,4 +6,5 @@ public class LinguisticVariableDTO {
     public String name;
     public List<LabelDTO> labels;
     public FuzzySetDTO fuzzySet;
+    public String quantifierType;
 }

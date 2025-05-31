@@ -34,11 +34,11 @@ public class Main extends Application {
         List<LinguisticVariable> variables = LinguisticVariableFactory.fromDTO(dtos, data);
 
 
-        LinguisticVariable quantifierVar = variables.stream()
+        Quantifier quantifierVar = (Quantifier) variables.stream()
             .filter(v -> v.getName().equals("prawie wszyscy"))
             .findFirst()
             .orElseThrow();
-        Quantifier quantifier = new Quantifier(quantifierVar.getName(), quantifierVar.getLinguisticValue(), QuantifierType.RELATIVE);
+        Quantifier quantifier = new Quantifier(quantifierVar.getName(), quantifierVar.getLinguisticValue(), quantifierVar.getQuantifierType());
 
 
         LinguisticVariable qualifierVar = variables.stream()

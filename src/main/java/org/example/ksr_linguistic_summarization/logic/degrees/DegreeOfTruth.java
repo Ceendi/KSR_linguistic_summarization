@@ -54,9 +54,6 @@ public class DegreeOfTruth implements Degree {
                     double membership = qualifier.getLinguisticValue().getFuzzySet().getMembershipDegree(attrValue);
                     if (w_min > membership) w_min = membership;
                 }
-                System.out.println(w_sum);
-                System.out.println(w_min);
-                System.out.println(sum);
                 w_sum += w_min;
                 sum += Math.min(s_min, w_min);
             }

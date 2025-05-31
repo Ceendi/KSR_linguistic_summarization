@@ -8,6 +8,8 @@ import org.example.ksr_linguistic_summarization.logic.set.*;
 import org.example.ksr_linguistic_summarization.logic.summarization.LinguisticValue;
 import org.example.ksr_linguistic_summarization.logic.summarization.LinguisticVariable;
 import org.example.ksr_linguistic_summarization.logic.utils.BodyPerformance;
+import org.example.ksr_linguistic_summarization.logic.summarization.Quantifier;
+import org.example.ksr_linguistic_summarization.logic.summarization.QuantifierType;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,7 +25,12 @@ public class LinguisticVariableFactory {
                 }
             } else if (dto.fuzzySet != null) {
                 FuzzySet fuzzySet = createFuzzySet(dto.fuzzySet, new ArrayList<>());
-                result.add(new LinguisticVariable(dto.name, new LinguisticValue(dto.name, fuzzySet)));
+                if (dto.quantifierType != null) {
+                    QuantifierType type = QuantifierType.valueOf(dto.quantifierType.toUpperCase());
+                    result.add(new Quantifier(dto.name, new LinguisticValue(dto.name, fuzzySet), type));
+                } else {
+                    result.add(new LinguisticVariable(dto.name, new LinguisticValue(dto.name, fuzzySet)));
+                }
             }
         }
         return result;
