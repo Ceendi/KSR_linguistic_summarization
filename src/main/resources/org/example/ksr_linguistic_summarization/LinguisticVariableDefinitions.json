@@ -1,0 +1,250 @@
+{
+  "linguistic_variables": [
+    {
+      "name": "age",
+      "labels": [
+        {
+          "name": "młoda",
+          "fuzzySet": { "type": "trapezoidal", "params": [21, 21, 28, 33] }
+        },
+        {
+          "name": "w średnim wieku",
+          "fuzzySet": { "type": "trapezoidal", "params": [28, 33, 40, 45] }
+        },
+        {
+          "name": "przedstarcza",
+          "fuzzySet": { "type": "trapezoidal", "params": [40, 45, 50, 55]}
+        },
+        {
+          "name": "w podeszłym wieku",
+          "fuzzySet": { "type": "trapezoidal", "params": [50, 55, 64, 64] }
+        }
+      ]
+    },
+    {
+      "name": "heightCm",
+      "labels": [
+        {
+          "name": "bardzo niska",
+          "fuzzySet": { "type": "trapezoidal", "params": [125, 125, 140, 150] }
+        },
+        {
+          "name": "niska",
+          "fuzzySet": { "type": "triangular", "params": [145, 155, 165] }
+        },
+        {
+          "name": "średniego wzrostu",
+          "fuzzySet": { "type": "trapezoidal", "params": [160, 170, 175, 185] }
+        },
+        {
+          "name": "wysoka",
+          "fuzzySet": { "type": "trapezoidal", "params": [175, 185, 200, 200] }
+        }
+      ]
+    },
+    {
+      "name": "weightKg",
+      "labels": [
+        {
+          "name": "bardzo lekka",
+          "fuzzySet": { "type": "trapezoidal", "params": [34, 34, 45, 55] }
+        },
+        {
+          "name": "lekka",
+          "fuzzySet": { "type": "triangular", "params": [42.5, 57.5, 72.5] }
+        },
+        {
+          "name": "średnia",
+          "fuzzySet": { "type": "trapezoidal", "params": [60, 70, 85, 95] }
+        },
+        {
+          "name": "ciężka",
+          "fuzzySet": { "type": "trapezoidal", "params": [85, 95, 110, 120] }
+        },
+        {
+          "name": "bardzo ciężka",
+          "fuzzySet": { "type": "trapezoidal", "params": [110, 120, 140, 140] }
+        }
+      ]
+    },
+    {
+      "name": "bodyFatPercentage",
+      "labels": [
+        {
+          "name": "niski poziom tłuszczu",
+          "fuzzySet": { "type": "trapezoidal", "params": [3, 3, 20, 25] }
+        },
+        {
+          "name": "zdrowy poziom tłuszczu",
+          "fuzzySet": { "type": "triangular", "params": [20, 25, 30] }
+        },
+        {
+          "name": "podwyższony poziom tłuszczu",
+          "fuzzySet": { "type": "trapezoidal", "params": [25, 30, 35, 40] }
+        },
+        {
+          "name": "wysoki poziom tłuszczu",
+          "fuzzySet": { "type": "trapezoidal", "params": [35, 40, 55, 55] }
+        }
+      ]
+    },
+    {
+      "name": "diastolic",
+      "labels": [
+        {
+          "name": "optymalne ciśnienie",
+          "fuzzySet": { "type": "trapezoidal", "params": [30, 30, 75, 80] }
+        },
+        {
+          "name": "prawidłowe ciśnienie",
+          "fuzzySet": { "type": "gaussian", "params": [80, 5] }
+        },
+        {
+          "name": "podwyższone ciśnienie",
+          "fuzzySet": { "type": "triangular", "params": [85, 87.5, 90] }
+        },
+        {
+          "name": "nadciśnienie",
+          "fuzzySet": { "type": "trapezoidal", "params": [85, 90, 126, 126] }
+        }
+      ]
+    },
+    {
+      "name": "systolic",
+      "labels": [
+        {
+          "name": "optymalne ciśnienie",
+          "fuzzySet": { "type": "trapezoidal", "params": [77, 77, 110, 120] }
+        },
+        {
+          "name": "prawidłowe ciśnienie",
+          "fuzzySet": { "type": "gaussian", "params": [125, 5] }
+        },
+        {
+          "name": "podwyższone ciśnienie",
+          "fuzzySet": { "type": "triangular", "params": [130, 135, 140] }
+        },
+        {
+          "name": "nadciśnienie",
+          "fuzzySet": { "type": "trapezoidal", "params": [135, 145, 201, 201] }
+        }
+      ]
+    },
+    {
+      "name": "gripForce",
+      "labels": [
+        {
+          "name": "bardzo słaby chwyt",
+          "fuzzySet": { "type": "trapezoidal", "params": [1, 1, 20, 30] }
+        },
+        {
+          "name": "słaby chwyt",
+          "fuzzySet": { "type": "gaussian", "params": [30, 5] }
+        },
+        {
+          "name": "umiarkowany chwyt",
+          "fuzzySet": { "type": "gaussian", "params": [40, 5] }
+        },
+        {
+          "name": "silny chwyt",
+          "fuzzySet": { "type": "trapezoidal", "params": [40, 50, 71, 71] }
+        }
+      ]
+    },
+    {
+      "name": "sitAndBendForwardCm",
+      "labels": [
+        {
+          "name": "niska giętkość",
+          "fuzzySet": { "type": "trapezoidal", "params": [-25, -25, 0, 10] }
+        },
+        {
+          "name": "średnia giętkość",
+          "fuzzySet": { "type": "gaussian", "params": [15, 7.5] }
+        },
+        {
+          "name": "wysoka giętkość",
+          "fuzzySet": { "type": "trapezoidal", "params": [20, 30, 42, 42] }
+        }
+      ]
+    },
+    {
+      "name": "sitUpsCounts",
+      "labels": [
+        {
+          "name": "niska sprawność",
+          "fuzzySet": { "type": "trapezoidal", "params": [0, 0, 10, 20] }
+        },
+        {
+          "name": "średnia sprawność",
+          "fuzzySet": { "type": "gaussian", "params": [30, 8] }
+        },
+        {
+          "name": "wysoka sprawność",
+          "fuzzySet": { "type": "trapezoidal", "params": [40, 60, 80, 80] }
+        }
+      ]
+    },
+    {
+      "name": "broadJumpCm",
+      "labels": [
+        {
+          "name": "słabo skaczące",
+          "fuzzySet": { "type": "trapezoidal", "params": [0, 0, 150, 180] }
+        },
+        {
+          "name": "średnio skacząca",
+          "fuzzySet": { "type": "gaussian", "params": [190, 30] }
+        },
+        {
+          "name": "daleko skacząca",
+          "fuzzySet": { "type": "trapezoidal", "params": [200, 230, 303, 303] }
+        }
+      ]
+    },
+    {
+      "name": "prawie nikt",
+      "fuzzySet": { "type": "trapezoidal", "params": [0.0, 0.0, 0.05, 0.15] }
+    },
+    {
+      "name": "niewiele",
+      "fuzzySet": { "type": "triangular", "params": [0.05, 0.15, 0.25] }
+    },
+    {
+      "name": "około 1/3",
+      "fuzzySet": { "type": "gaussian", "params": [0.33, 0.03] }
+    },
+    {
+      "name": "około połowa",
+      "fuzzySet": { "type": "triangular", "params": [0.35, 0.5, 0.65] }
+    },
+    {
+      "name": "duża część",
+      "fuzzySet": { "type": "triangular", "params": [0.6, 0.75, 0.9] }
+    },
+    {
+      "name": "prawie wszyscy",
+      "fuzzySet": { "type": "trapezoidal", "params": [0.8, 0.95, 1.0, 1.0] }
+    },
+    {
+      "name": "około tysiąca",
+      "fuzzySet": { "type": "triangular", "params": [0, 1000, 2000] }
+    },
+    {
+      "name": "mniej niż 2 tysiące",
+      "fuzzySet": { "type": "trapezoidal", "params": [0, 500, 1500, 2000] }
+    },
+    {
+      "name": "około 5 tysięcy",
+      "fuzzySet": { "type": "gaussian", "params": [5000, 500] }
+    },
+    {
+      "name": "prawie 8 tysięcy",
+      "fuzzySet": { "type": "triangular", "params": [7000, 7999, 7999] }
+    },
+    {
+      "name": "ponad 10 tysięcy",
+      "fuzzySet": { "type": "trapezoidal", "params": [10000, 11000, 13369, 13369] }
+    }
+  ]
+}

@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 @Getter
 @Setter
 @AllArgsConstructor
-public class DiscreteSet<T> implements ClassicSet {
-    List<T> values;
+public class DiscreteSet implements ClassicSet {
+    List<Double> values;
 
     @Override
     public double getSize() {
@@ -23,26 +23,26 @@ public class DiscreteSet<T> implements ClassicSet {
         return values.isEmpty();
     }
 
-    public DiscreteSet<T> complement(List<T> universe) {
-        List<T> result = universe.stream()
+    public DiscreteSet complement(List<Double> universe) {
+        List<Double> result = universe.stream()
                 .filter(e -> !values.contains(e))
                 .distinct()
                 .toList();
-        return new DiscreteSet<>(result);
+        return new DiscreteSet(result);
     }
 
-    public DiscreteSet<T> intersection(DiscreteSet<T> discreteSet) {
-        List<T> result = values.stream()
+    public DiscreteSet intersection(DiscreteSet discreteSet) {
+        List<Double> result = values.stream()
                 .filter(discreteSet.getValues()::contains)
                 .distinct()
                 .toList();
-        return new DiscreteSet<>(result);
+        return new DiscreteSet(result);
     }
 
-    public DiscreteSet<T> union(DiscreteSet<T> discreteSet) {
-        List<T> result = Stream.concat(values.stream(), discreteSet.getValues().stream())
+    public DiscreteSet union(DiscreteSet discreteSet) {
+        List<Double> result = Stream.concat(values.stream(), discreteSet.getValues().stream())
                 .distinct()
                 .toList();
-        return new DiscreteSet<>(result);
+        return new DiscreteSet(result);
     }
 }

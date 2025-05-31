@@ -1,7 +1,9 @@
 package org.example.ksr_linguistic_summarization.logic.functions;
 
 public class Triangular implements MembershipFunction {
-    private double a, b, c;
+    private final double a;
+    private final double b;
+    private final double c;
 
     public Triangular(double a, double b, double c) {
         this.a = a;
@@ -10,7 +12,7 @@ public class Triangular implements MembershipFunction {
     }
 
     public double getMembership(double x) {
-        if (x <= a || x >= c) return 0;
+        if (x < a || x > c) return 0;
         else if (x == b) return 1;
         else if (x < b) return (x - a) / (b - a);
         else return (c - x) / (c - b);

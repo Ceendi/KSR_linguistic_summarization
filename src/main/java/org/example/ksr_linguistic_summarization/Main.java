@@ -6,16 +6,15 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.example.ksr_linguistic_summarization.logic.degrees.Degree;
 import org.example.ksr_linguistic_summarization.logic.degrees.DegreeOfTruth;
-import org.example.ksr_linguistic_summarization.logic.functions.Gaussian;
-import org.example.ksr_linguistic_summarization.logic.functions.Trapezoidal;
-import org.example.ksr_linguistic_summarization.logic.set.DiscreteSet;
-import org.example.ksr_linguistic_summarization.logic.set.FuzzySet;
 import org.example.ksr_linguistic_summarization.logic.summarization.*;
 import org.example.ksr_linguistic_summarization.logic.utils.BodyPerformance;
 import org.example.ksr_linguistic_summarization.logic.utils.DataInitializer;
+import org.example.ksr_linguistic_summarization.logic.utils.linguistic_variable.LinguisticVariableDTO;
+import org.example.ksr_linguistic_summarization.logic.utils.linguistic_variable.LinguisticVariableLoader;
+import org.example.ksr_linguistic_summarization.logic.utils.linguistic_variable.LinguisticVariableFactory;
 
 import java.io.IOException;
-import java.sql.SQLException;
+
 import java.util.List;
 
 public class Main extends Application {
@@ -28,44 +27,38 @@ public class Main extends Application {
         stage.show();
     }
 
-    public static void main(String[] args) throws SQLException {
-        // launch();
+    public static void main(String[] args) throws Exception {
         List<BodyPerformance> data = DataInitializer.loadBodyPerformanceData();
 
-        Quantifier quantifier = new Quantifier(
-                "około 1/3",
-                new LinguisticValue("około 1/3",
-                        new FuzzySet(
-                                new DiscreteSet<>(data.stream().map(BodyPerformance::getAge).toList()),
-                                new Gaussian(0.33, 0.03)
-                        )
-                ),
-                QuantifierType.RELATIVE
-        );
+        List<LinguisticVariableDTO> dtos = LinguisticVariableLoader.load();
+        List<LinguisticVariable> variables = LinguisticVariableFactory.fromDTO(dtos, data);
 
-        Qualifier qualifier1 = new Qualifier(
-                "age",
-                new LinguisticValue("młoda",
-                        new FuzzySet(
-                                new DiscreteSet<>(data.stream().map(BodyPerformance::getAge).toList()),
-                                new Trapezoidal(21, 21, 28, 33)
-                        )
-                )
-        );
 
-        Summarizer summarizer1 = new Summarizer(
-                "gripforce",
-                new LinguisticValue("słaby chwyt",
-                        new FuzzySet(
-                                new DiscreteSet<>(data.stream().map(BodyPerformance::getAge).toList()),
-                                new Gaussian(30, 5)
-                        )
-                )
-        );
+        LinguisticVariable quantifierVar = variables.stream()
+            .filter(v -> v.getName().equals("prawie wszyscy"))
+            .findFirst()
+            .orElseThrow();
+        Quantifier quantifier = new Quantifier(quantifierVar.getName(), quantifierVar.getLinguisticValue(), QuantifierType.RELATIVE);
+
+
+        LinguisticVariable qualifierVar = variables.stream()
+            .filter(v -> v.getLinguisticValue().getName().equals("młoda"))
+            .findFirst()
+            .orElseThrow();
+        Qualifier qualifier1 = new Qualifier(qualifierVar.getName(), qualifierVar.getLinguisticValue());
+
+
+        LinguisticVariable summarizerVar = variables.stream()
+            .filter(v -> v.getLinguisticValue().getName().equals("młoda"))
+            .findFirst()
+            .orElseThrow();
+        Summarizer summarizer1 = new Summarizer(summarizerVar.getName(), summarizerVar.getLinguisticValue());
+
 
         List<Degree> degrees = List.of(new DegreeOfTruth());
 
         LinguisticSummary summary = new LinguisticSummary(quantifier, List.of(qualifier1), List.of(summarizer1), data, SummaryType.ONESUBJECT, degrees);
+
         System.out.println(summary.getLinguisticSummary());
     }
 }

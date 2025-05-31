@@ -1,7 +1,10 @@
 package org.example.ksr_linguistic_summarization.logic.functions;
 
 public class Trapezoidal implements MembershipFunction {
-    private double a, b, c, d;
+    private final double a;
+    private final double b;
+    private final double c;
+    private final double d;
 
     public Trapezoidal(double a, double b, double c, double d) {
         this.a = a;
@@ -11,7 +14,7 @@ public class Trapezoidal implements MembershipFunction {
     }
 
     public double getMembership(double x) {
-        if (x <= a || x >= d) return 0;
+        if (x < a || x > d) return 0;
         else if (x >= b && x <= c) return 1;
         else if (x < b) return (x - a) / (b - a);
         else return (d - x) / (d - c);

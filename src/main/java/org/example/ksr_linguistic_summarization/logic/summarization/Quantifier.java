@@ -1,6 +1,9 @@
 package org.example.ksr_linguistic_summarization.logic.summarization;
 
 
+import lombok.Getter;
+
+@Getter
 public class Quantifier extends LinguisticVariable {
     private final QuantifierType quantifierType;
     public Quantifier(String name, LinguisticValue linguisticValue, QuantifierType quantifierType) {
@@ -8,8 +11,8 @@ public class Quantifier extends LinguisticVariable {
         this.quantifierType = quantifierType;
     }
 
-    public QuantifierType getQuantifierType() {
-        return quantifierType;
+    public boolean isAbsolute() {
+        return quantifierType == QuantifierType.ABSOLUTE;
     }
 }
 

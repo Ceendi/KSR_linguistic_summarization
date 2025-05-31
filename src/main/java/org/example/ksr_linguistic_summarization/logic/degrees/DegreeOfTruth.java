@@ -18,30 +18,49 @@ public class DegreeOfTruth implements Degree {
 
         double sum = 0.0;
 
-        for (BodyPerformance bp : subjects) {
-            double summarizersDegree = 1.0;
-            for (Summarizer summarizer : summarizers) {
-                double attrValue = bp.getAttribute(summarizer.getName());
-                double membership = summarizer.getLinguisticValue().getFuzzySet().getMembershipDegree(attrValue);
-                summarizersDegree *= membership; // t-norma: iloczyn
+        if (qualifiers == null || qualifiers.isEmpty()) {
+            for (BodyPerformance bp : subjects) {
+                double min = Double.MAX_VALUE;
+                for (Summarizer summarizer : summarizers) {
+                    double attrValue = bp.getAttribute(summarizer.getName());
+                    double membership = summarizer.getLinguisticValue().getFuzzySet().getMembershipDegree(attrValue);
+                    if (min > membership) min = membership;
+                }
+                sum += min;
+                return sum;
             }
 
-            double qualifiersDegree = 1.0;
-            if (qualifiers != null && !qualifiers.isEmpty()) {
+            if (summary.getQuantifier().isAbsolute()) {
+                return summary.getQuantifier().getLinguisticValue().getFuzzySet().getMembershipDegree(sum);
+            } else {
+                double t = sum / subjects.size();
+                return summary.getQuantifier().getLinguisticValue().getFuzzySet().getMembershipDegree(t);
+            }
+        } else {
+            if (summary.getQuantifier().isAbsolute()) throw new UnsupportedOperationException("Absolute quantifier is not supported for DegreeOfTruth with Qualifiers");
+
+            double w_sum = 0.0;
+
+            for (BodyPerformance bp : subjects) {
+                double s_min = Double.MAX_VALUE;
+                double w_min = Double.MAX_VALUE;
+                for (Summarizer summarizer : summarizers) {
+                    double attrValue = bp.getAttribute(summarizer.getName());
+                    double membership = summarizer.getLinguisticValue().getFuzzySet().getMembershipDegree(attrValue);
+                    if (s_min > membership) s_min = membership;
+                }
                 for (Qualifier qualifier : qualifiers) {
                     double attrValue = bp.getAttribute(qualifier.getName());
                     double membership = qualifier.getLinguisticValue().getFuzzySet().getMembershipDegree(attrValue);
-                    qualifiersDegree *= membership; // t-norma: iloczyn
+                    if (w_min > membership) w_min = membership;
                 }
+                System.out.println(w_sum);
+                System.out.println(w_min);
+                System.out.println(sum);
+                w_sum += w_min;
+                sum += Math.min(s_min, w_min);
             }
-
-            double implication = Math.min(1.0, 1.0 - qualifiersDegree + summarizersDegree);
-
-            sum += implication;
+            return summary.getQuantifier().getLinguisticValue().getFuzzySet().getMembershipDegree(sum/w_sum);
         }
-
-        double t = sum / subjects.size();
-
-        return summary.getQuantifier().getLinguisticValue().getFuzzySet().getMembershipDegree(t);
     }
 }
