@@ -1,11 +1,14 @@
 package org.example.ksr_linguistic_summarization.logic.summarization;
 
+
+import org.example.ksr_linguistic_summarization.logic.degrees.Degree;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class LinguisticSummaryGenerator {
-    public static List<LinguisticSummary> generateSummaries(List<Quantifier> quantifiers, List<Summarizer> summarizers) {
+    public static List<LinguisticSummary> generateSummaries(List<Quantifier> quantifiers, List<Summarizer> summarizers, List<Degree> degrees) {
         List<LinguisticSummary> summaries = null;
 
         List<List<Summarizer>> summarizerCombinations = generateCombination(summarizers);

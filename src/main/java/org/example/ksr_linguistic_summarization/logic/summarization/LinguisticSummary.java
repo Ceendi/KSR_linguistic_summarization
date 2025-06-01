@@ -41,8 +41,9 @@ public class LinguisticSummary {
     }
 
     public String getLinguisticSummary() {
-        String summary = quantifier.getName() + " osób, która jest ";
+        String summary = quantifier.getName() + " osób";
         if (qualifiers != null && !qualifiers.isEmpty()) {
+            summary += ", która jest/posiada ";
             summary += qualifiers.stream()
                     .map(q -> q.getLinguisticValue().getName())
                     .collect(Collectors.joining(" i "));

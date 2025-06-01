@@ -5,16 +5,11 @@ import org.example.ksr_linguistic_summarization.logic.summarization.LinguisticSu
 public class TheOptimalSummary implements Degree {
 
     private LinguisticSummary summary;
-    private DegreeOfTruth degreeOfTruth;
-    private DegreeOfImprecision degreeOfImprecision;
-    private DegreeOfCovering degreeOfCovering;
-    private DegreeOfAppropriateness degreeOfAppropriateness;
-    private LengthOfASummary lengthOfASummary;
-
-    public TheOptimalSummary(DegreeOfTruth degreeOfTruth, DegreeOfImprecision degreeOfImprecision,
-                             DegreeOfCovering degreeOfCovering, DegreeOfAppropriateness degreeOfAppropriateness,
-                             LengthOfASummary lengthOfASummary) {
-    }
+    private final DegreeOfTruth degreeOfTruth = new DegreeOfTruth();
+    private final DegreeOfImprecision degreeOfImprecision = new DegreeOfImprecision();
+    private final DegreeOfCovering degreeOfCovering = new DegreeOfCovering();
+    private final DegreeOfAppropriateness degreeOfAppropriateness = new DegreeOfAppropriateness();
+    private final LengthOfASummary lengthOfASummary = new LengthOfASummary();
 
     @Override
     public double calculateDegree(LinguisticSummary summary) {

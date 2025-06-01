@@ -5,6 +5,10 @@ import org.example.ksr_linguistic_summarization.logic.summarization.LinguisticSu
 public class DegreeOfImprecision implements Degree {
     @Override
     public double calculateDegree(LinguisticSummary summary) {
-        return 0;
+        var result = 1.0;
+        for (var summarizer : summary.getSummarizers()) {
+            result *= summarizer.getLinguisticValue().getFuzzySet().getDegreeOfFuzziness();
+        }
+        return 1 - Math.pow(result, (double) 1 / summary.getSummarizers().size());
     }
 }
