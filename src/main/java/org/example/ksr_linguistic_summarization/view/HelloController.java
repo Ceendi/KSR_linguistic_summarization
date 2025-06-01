@@ -214,7 +214,7 @@ public class HelloController {
                 return;
             }
 
-            List<LinguisticSummary> summaries = LinguisticSummaryGenerator.generateSummaries(selectedQuantifiers, selectedSummarizers, selectedDegrees);
+            List<LinguisticSummary> summaries = LinguisticSummaryGenerator.generateSummaries(selectedQuantifiers, selectedSummarizers, data, selectedDegrees);
             if (summaries == null || summaries.isEmpty()) {
                 resultTextArea.setText("Brak podsumowań dla wybranych opcji.");
                 return;

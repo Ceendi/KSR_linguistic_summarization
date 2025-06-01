@@ -3,29 +3,58 @@ package org.example.ksr_linguistic_summarization.logic.summarization;
 
 import org.example.ksr_linguistic_summarization.logic.degrees.Degree;
 
+import org.example.ksr_linguistic_summarization.logic.degrees.Degree;
+import org.example.ksr_linguistic_summarization.logic.utils.BodyPerformance;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LinguisticSummaryGenerator {
-    public static List<LinguisticSummary> generateSummaries(List<Quantifier> quantifiers, List<Summarizer> summarizers, List<Degree> degrees) {
-        List<LinguisticSummary> summaries = null;
+    public static List<LinguisticSummary> generateSummaries(List<Quantifier> quantifiers, List<Summarizer> summarizers, List<BodyPerformance> subjects, List<Degree> degrees) {
+        List<LinguisticSummary> summaries = new ArrayList<>();
+        ;
 
-        List<List<Summarizer>> summarizerCombinations = generateCombination(summarizers);
+        List<List<Summarizer>> firstDegreeSummarizers = generateCombination(summarizers);
+        List<List<List<Summarizer>>> secondDegreePairs = generateDisjointPairs(summarizers);
 
-
-//        System.out.println(quantifierCombinations);
-
-
-        // Q P are/have S
-
-
-
-        // Q P are/have S and S and...
-        // Q P being/having W are/have S
+        //PIERWSZY STOPIEŃ
+        for (Quantifier quantifier : quantifiers) {
+            //PIERWSZY STOPIEŃ
+            for (List<Summarizer> summarizerCombination : firstDegreeSummarizers) {
+                LinguisticSummary summary = new LinguisticSummary(
+                        quantifier,
+                        Collections.emptyList(),
+                        summarizerCombination,
+                        subjects,
+                        SummaryType.ONESUBJECT,
+                        degrees
+                );
+                summaries.add(summary);
+            }
+            //DRUGI STOPIEŃ
+            if (quantifier.getQuantifierType() == QuantifierType.RELATIVE) {
+                for (List<List<Summarizer>> pair : secondDegreePairs) {
+                    List<Qualifier> qualCombinationD2 = pair.get(0).stream()
+                            .map(summ -> new Qualifier(summ.getName(), summ.getLinguisticValue()))
+                            .collect(Collectors.toList());
+                    List<Summarizer> summCombinationD2 = pair.get(1);
+                    LinguisticSummary summary = new LinguisticSummary(
+                            quantifier,
+                            qualCombinationD2,
+                            summCombinationD2,
+                            subjects,
+                            SummaryType.ONESUBJECT,
+                            degrees
+                    );
+                    summaries.add(summary);
+                }
+            }
+        }
         // wielopodmiotowe :DDDD
-
-        return null;
+        return summaries;
     }
 
     public static <T> List<List<T>> generateCombination(List<T> list) {
