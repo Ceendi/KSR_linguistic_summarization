@@ -29,7 +29,7 @@ public class DegreeOfTruth implements Degree {
                 sum += min;
 //                return sum;
             }
-            System.out.println(sum);
+//            System.out.println(sum);
             if (summary.getQuantifier().isAbsolute()) {
                 return summary.getQuantifier().getLinguisticValue().getFuzzySet().getMembershipDegree(sum);
             } else {
@@ -38,9 +38,7 @@ public class DegreeOfTruth implements Degree {
             }
         } else {
             if (summary.getQuantifier().isAbsolute()) throw new UnsupportedOperationException("Absolute quantifier is not supported for DegreeOfTruth with Qualifiers");
-
             double w_sum = 0.0;
-            System.out.println("bruh");
             for (BodyPerformance bp : subjects) {
                 double s_min = Double.MAX_VALUE;
                 double w_min = Double.MAX_VALUE;

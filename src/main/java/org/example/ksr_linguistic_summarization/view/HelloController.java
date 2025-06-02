@@ -4,8 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTreeCell;
-import org.example.ksr_linguistic_summarization.logic.degrees.Degree;
-import org.example.ksr_linguistic_summarization.logic.degrees.DegreeOfTruth;
+import org.example.ksr_linguistic_summarization.logic.degrees.*;
 import org.example.ksr_linguistic_summarization.logic.summarization.*;
 import org.example.ksr_linguistic_summarization.logic.utils.BodyPerformance;
 import org.example.ksr_linguistic_summarization.logic.utils.DataInitializer;
@@ -16,16 +15,6 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.CheckBoxTreeItem;
 import org.example.ksr_linguistic_summarization.logic.summarization.LinguisticSummaryGenerator;
-import org.example.ksr_linguistic_summarization.logic.degrees.DegreeOfImprecision;
-import org.example.ksr_linguistic_summarization.logic.degrees.DegreeOfAppropriateness;
-import org.example.ksr_linguistic_summarization.logic.degrees.DegreeOfCovering;
-import org.example.ksr_linguistic_summarization.logic.degrees.DegreeOfQuantifierImprecision;
-import org.example.ksr_linguistic_summarization.logic.degrees.DegreeOfSummarizerCardinality;
-import org.example.ksr_linguistic_summarization.logic.degrees.LengthOfASummary;
-import org.example.ksr_linguistic_summarization.logic.degrees.DegreeOfQualifierCardinality;
-import org.example.ksr_linguistic_summarization.logic.degrees.DegreeOfQualifierImprecision;
-import org.example.ksr_linguistic_summarization.logic.degrees.DegreeOfQuantifierCardinality;
-import org.example.ksr_linguistic_summarization.logic.degrees.TheOptimalSummary;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -105,15 +94,16 @@ public class HelloController {
             String[] degreeNames = {
                 "DegreeOfTruth",
                 "DegreeOfImprecision",
-                "DegreeOfAppropriateness",
                 "DegreeOfCovering",
-                "DegreeOfQuantifierImprecision",
-                "DegreeOfSummarizerCardinality",
+                "DegreeOfAppropriateness",
                 "LengthOfASummary",
-                "DegreeOfQualifierCardinality",
-                "DegreeOfQualifierImprecision",
+                "DegreeOfQuantifierImprecision",
                 "DegreeOfQuantifierCardinality",
-                "TheOptimalSummary"
+                "DegreeOfSummarizerCardinality",
+                "DegreeOfQualifierImprecision",
+                "DegreeOfQualifierCardinality",
+                "LengthOfAQualifier",
+                "TheOptimalSummary",
             };
             for (String name : degreeNames) {
                 degreeRoot.getChildren().add(new CheckBoxTreeItem<>(name));
@@ -193,6 +183,7 @@ public class HelloController {
                 case "DegreeOfQualifierCardinality" -> degrees.add(new DegreeOfQualifierCardinality());
                 case "DegreeOfQualifierImprecision" -> degrees.add(new DegreeOfQualifierImprecision());
                 case "DegreeOfQuantifierCardinality" -> degrees.add(new DegreeOfQuantifierCardinality());
+                case "LengthOfAQualifier" -> degrees.add(new LengthOfAQualifier());
                 case "TheOptimalSummary" -> degrees.add(new TheOptimalSummary());
             }
         }

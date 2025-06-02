@@ -52,7 +52,7 @@ public class LinguisticSummary {
         summary += summarizers.stream()
                 .map(s -> s.getLinguisticValue().getName())
                 .collect(Collectors.joining(" i ")) +
-                " [" + summaryValue + "]";
+                " [" + Math.round(summaryValue * 1000.0) / 1000.0 + "]";
         return summary;
     }
 }

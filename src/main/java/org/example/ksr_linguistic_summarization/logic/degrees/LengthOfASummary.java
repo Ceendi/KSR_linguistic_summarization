@@ -5,6 +5,7 @@ import org.example.ksr_linguistic_summarization.logic.summarization.LinguisticSu
 public class LengthOfASummary implements Degree {
     @Override
     public double calculateDegree(LinguisticSummary summary) {
-        return 0;
+        double S = summary.getSummarizers().size();
+        return 2 * Math.pow(0.5, S);
     }
 }

@@ -11,6 +11,7 @@ public class Triangular implements MembershipFunction {
         this.c = c;
     }
 
+    @Override
     public double getMembership(double x) {
         if (x < a || x > c) return 0;
         else if (x == b) return 1;

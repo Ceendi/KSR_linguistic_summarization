@@ -25,6 +25,12 @@ public class LinguisticVariableFactory {
                 }
             } else if (dto.fuzzySet != null) {
                 FuzzySet fuzzySet = createFuzzySet(dto.fuzzySet, new ArrayList<>());
+                if (Objects.equals(dto.quantifierType, "ABSOLUTE")) {
+                    fuzzySet.setUniverseOfDiscourse(new ContinuousSet(0, data.size()));
+                } else {
+                    fuzzySet.setUniverseOfDiscourse(new ContinuousSet(0, 1));
+                }
+
                 if (dto.quantifierType != null) {
                     QuantifierType type = QuantifierType.valueOf(dto.quantifierType.toUpperCase());
                     result.add(new Quantifier(dto.name, new LinguisticValue(dto.name, fuzzySet), type));

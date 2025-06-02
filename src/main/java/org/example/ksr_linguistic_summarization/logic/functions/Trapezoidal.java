@@ -13,11 +13,11 @@ public class Trapezoidal implements MembershipFunction {
         this.d = d;
     }
 
+    @Override
     public double getMembership(double x) {
         if (x < a || x > d) return 0;
         else if (x >= b && x <= c) return 1;
         else if (x < b) return (x - a) / (b - a);
         else return (d - x) / (d - c);
     }
-
 }

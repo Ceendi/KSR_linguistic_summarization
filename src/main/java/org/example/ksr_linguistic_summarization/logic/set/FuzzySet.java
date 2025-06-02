@@ -3,15 +3,17 @@ package org.example.ksr_linguistic_summarization.logic.set;
 import jdk.jshell.spi.ExecutionControl.NotImplementedException;
 import lombok.*;
 import org.example.ksr_linguistic_summarization.logic.functions.MembershipFunction;
+import org.example.ksr_linguistic_summarization.logic.functions.Trapezoidal;
 
 import java.util.List;
 
 @Getter
+@Setter
 @AllArgsConstructor
 @EqualsAndHashCode
 @ToString
 public class FuzzySet {
-    private final ClassicSet universeOfDiscourse;
+    private ClassicSet universeOfDiscourse;
     private final MembershipFunction membershipFunction;
 
     public double getCardinality() {
@@ -19,10 +21,28 @@ public class FuzzySet {
             return discreteSet.getValues()
                     .stream()
                     .mapToDouble(Double::doubleValue)
+                    .map(membershipFunction::getMembership)
                     .sum();
+        } else if (universeOfDiscourse instanceof ContinuousSet continuousSet) {
+            return getArea();
         } else {
-            throw new UnsupportedOperationException("Get Cardinality is only supported for DiscreteSet");
+            throw new UnsupportedOperationException("Unknown type of universeOfDiscourse");
         }
+    }
+
+    private double getArea() {
+        double area = 0.0;
+        if (universeOfDiscourse instanceof ContinuousSet continuousSet) {
+            ContinuousSet support = (ContinuousSet) this.getSupport();
+            var start =support.getStartOfUniverse();
+            var end = support.getEndOfUniverse();
+            var length = end - start;
+            var step = length / 1000;
+            for (double i = start; i <= end; i += step) {
+                area += membershipFunction.getMembership(i) * step;
+            }
+        }
+        return area;
     }
 
     public double getHeight() {
@@ -59,8 +79,31 @@ public class FuzzySet {
                 }
             }
             return new DiscreteSet(support);
-        } else {
-            throw new UnsupportedOperationException("Support of continous set is not supported");
+        } else if (universeOfDiscourse instanceof ContinuousSet continuousSet) {
+            double start = continuousSet.getStartOfUniverse();
+            double end = continuousSet.getEndOfUniverse();
+            double step = 0.01;
+
+            Double supportStart = null;
+            Double supportEnd = null;
+
+            for (double x = start; x <= end; x += step) {
+                if (membershipFunction.getMembership(x) > 0) {
+                    if (supportStart == null) {
+                        supportStart = x;
+                    }
+                    supportEnd = x;
+                }
+            }
+
+            if (supportStart != null) {
+                return new ContinuousSet(supportStart, supportEnd);
+            } else {
+                return new ContinuousSet(0, 0);
+            }
+        }
+        else {
+            throw new UnsupportedOperationException("Unknown type universeOfDiscourse");
         }
     }
 
@@ -132,10 +175,6 @@ public class FuzzySet {
     }
 
     public FuzzySet union(FuzzySet fuzzySet) {
-        if (!this.universeOfDiscourse.equals(fuzzySet.universeOfDiscourse)) {
-            throw new IllegalArgumentException("Universe of discourse must be the same for union");
-        }
-
         MembershipFunction unionMembershipFunction = x -> {
             double mu1 = FuzzySet.this.membershipFunction.getMembership(x);
             double mu2 = fuzzySet.membershipFunction.getMembership(x);
@@ -155,12 +194,8 @@ public class FuzzySet {
     }
 
     public FuzzySet intersection(FuzzySet fuzzySet) {
-        if (!this.universeOfDiscourse.equals(fuzzySet.universeOfDiscourse)) {
-            throw new IllegalArgumentException("Universe of discourse must be the same for union");
-        }
-
         MembershipFunction unionMembershipFunction = x -> {
-            double mu1 = FuzzySet.this.membershipFunction.getMembership(x);
+            double mu1 = this.membershipFunction.getMembership(x);
             double mu2 = fuzzySet.membershipFunction.getMembership(x);
             return Math.min(mu1, mu2);
         };
