@@ -1,10 +1,13 @@
 package org.example.ksr_linguistic_summarization.logic.degrees;
 
+import lombok.Getter;
 import org.example.ksr_linguistic_summarization.logic.summarization.LinguisticSummary;
 
 import java.util.List;
 
 public class TheOptimalSummary implements Degree {
+    @Getter
+    private final String name = "To";
 
     private LinguisticSummary summary;
     List<Degree> degrees = List.of(new DegreeOfTruth(), new DegreeOfImprecision(),

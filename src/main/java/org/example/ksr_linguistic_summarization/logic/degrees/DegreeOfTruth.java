@@ -1,5 +1,6 @@
 package org.example.ksr_linguistic_summarization.logic.degrees;
 
+import lombok.Getter;
 import org.example.ksr_linguistic_summarization.logic.summarization.LinguisticSummary;
 import org.example.ksr_linguistic_summarization.logic.summarization.Qualifier;
 import org.example.ksr_linguistic_summarization.logic.summarization.Summarizer;
@@ -8,9 +9,11 @@ import org.example.ksr_linguistic_summarization.logic.utils.BodyPerformance;
 import java.util.List;
 
 public class DegreeOfTruth implements Degree {
+    @Getter
+    private final String name = "T1";
     @Override
     public double calculateDegree(LinguisticSummary summary) {
-        List<BodyPerformance> subjects = summary.getSubjects();
+        List<BodyPerformance> subjects = summary.getRecords();
         if (subjects.isEmpty()) return 0.0;
 
         List<Qualifier> qualifiers = summary.getQualifiers();

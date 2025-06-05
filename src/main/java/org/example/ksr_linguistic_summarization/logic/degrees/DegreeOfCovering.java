@@ -1,14 +1,14 @@
 package org.example.ksr_linguistic_summarization.logic.degrees;
 
-import org.example.ksr_linguistic_summarization.logic.set.FuzzySet;
+import lombok.Getter;
 import org.example.ksr_linguistic_summarization.logic.summarization.LinguisticSummary;
 import org.example.ksr_linguistic_summarization.logic.summarization.Qualifier;
 import org.example.ksr_linguistic_summarization.logic.summarization.Summarizer;
 import org.example.ksr_linguistic_summarization.logic.utils.BodyPerformance;
 
-import java.util.List;
-
 public class DegreeOfCovering implements Degree {
+    @Getter
+    private final String name = "T3";
     @Override
     public double calculateDegree(LinguisticSummary summary) {
         if (summary.getQualifiers() != null && !summary.getQualifiers().isEmpty()) {
@@ -30,7 +30,7 @@ public class DegreeOfCovering implements Degree {
 //                    / qualifiersIntersection.getSupport().getSize();
             double sum1 = 0;
             double sum_w = 0;
-            for (BodyPerformance subject : summary.getSubjects()) {
+            for (BodyPerformance subject : summary.getRecords()) {
                 double s_min = Double.MAX_VALUE;
                 for (Summarizer summarizer : summary.getSummarizers()) {
                     double attrValue = subject.getAttribute(summarizer.getName());
@@ -53,7 +53,7 @@ public class DegreeOfCovering implements Degree {
             return sum1 / sum_w;
         } else {
             double sum2 = 0;
-            for (BodyPerformance subject : summary.getSubjects()) {
+            for (BodyPerformance subject : summary.getRecords()) {
                 double min = Double.MAX_VALUE;
                 for (Summarizer summarizer : summary.getSummarizers()) {
                     double attrValue = subject.getAttribute(summarizer.getName());
@@ -62,7 +62,7 @@ public class DegreeOfCovering implements Degree {
                 }
                 if (min > 0.0) sum2 += 1;
             }
-            return sum2 / summary.getSubjects().size();
+            return sum2 / summary.getRecords().size();
         }
 
 

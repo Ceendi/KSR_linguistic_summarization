@@ -219,7 +219,13 @@ public class HelloController {
             }
             StringBuilder sb = new StringBuilder();
             for (LinguisticSummary summary : summaries) {
-                sb.append(summary.getLinguisticSummary()).append("\n");
+                if (summary instanceof MultiSubjectLinguisticSummary) {
+                    MultiSubjectLinguisticSummary multi = (MultiSubjectLinguisticSummary) summary;
+                    sb.append(multi.getLinguisticSummary()).append("\n");
+                } else {
+                    sb.append(summary.getLinguisticSummary()).append("\n");
+                }
+
             }
             resultTextArea.setText(sb.toString());
         } catch (Exception e) {

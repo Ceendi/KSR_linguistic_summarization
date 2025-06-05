@@ -1,9 +1,7 @@
 package org.example.ksr_linguistic_summarization.logic.set;
 
-import jdk.jshell.spi.ExecutionControl.NotImplementedException;
 import lombok.*;
 import org.example.ksr_linguistic_summarization.logic.functions.MembershipFunction;
-import org.example.ksr_linguistic_summarization.logic.functions.Trapezoidal;
 
 import java.util.List;
 
@@ -28,6 +26,12 @@ public class FuzzySet {
         } else {
             throw new UnsupportedOperationException("Unknown type of universeOfDiscourse");
         }
+    }
+
+    public double getCardinality(List<Double> subset) {
+        return subset.stream()
+                .mapToDouble(membershipFunction::getMembership)
+                .sum();
     }
 
     private double getArea() {

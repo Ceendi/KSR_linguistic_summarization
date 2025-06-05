@@ -1,9 +1,11 @@
 package org.example.ksr_linguistic_summarization.logic.degrees;
 
+import lombok.Getter;
 import org.example.ksr_linguistic_summarization.logic.summarization.LinguisticSummary;
-import org.example.ksr_linguistic_summarization.logic.summarization.Qualifier;
 
 public class LengthOfAQualifier implements Degree {
+    @Getter
+    private final String name = "T11";
     @Override
     public double calculateDegree(LinguisticSummary summary) {
         if (summary.getQualifiers().isEmpty()) return 0.0;

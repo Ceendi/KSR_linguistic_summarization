@@ -1,8 +1,12 @@
 package org.example.ksr_linguistic_summarization.logic.degrees;
 
+import lombok.Getter;
 import org.example.ksr_linguistic_summarization.logic.summarization.LinguisticSummary;
 
 public class DegreeOfImprecision implements Degree {
+    @Getter
+    private final String name = "T2";
+
     @Override
     public double calculateDegree(LinguisticSummary summary) {
         var result = 1.0;
