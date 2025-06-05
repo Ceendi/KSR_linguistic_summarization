@@ -51,8 +51,14 @@ public class LinguisticSummary {
         summary += " jest/posiada ";
         summary += summarizers.stream()
                 .map(s -> s.getLinguisticValue().getName())
-                .collect(Collectors.joining(" i ")) +
-                " [" + Math.round(summaryValue * 1000.0) / 1000.0 + "]";
+                .collect(Collectors.joining(" i ")) + " | ";
+//                + " [" + Math.round(summaryValue * 1000.0) / 1000.0 + "]";
+        int i = 1;
+        for(Degree degree : degrees) {
+            summary += "T" + i + ": " +
+            Math.round(degree.calculateDegree(this) * 1000.0) / 1000.0 + " ";
+            i++;
+        }
         return summary;
     }
 }
