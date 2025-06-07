@@ -1,5 +1,6 @@
 package org.example.ksr_linguistic_summarization.logic.summarization;
 
+import lombok.Getter;
 import org.example.ksr_linguistic_summarization.logic.degrees.Degree;
 import org.example.ksr_linguistic_summarization.logic.utils.BodyPerformance;
 
@@ -10,6 +11,7 @@ import java.util.stream.Collectors;
 public class MultiSubjectLinguisticSummary extends LinguisticSummary {
 
     List<Character> subjects;
+    @Getter
     MultiSubjectType form;
 
 
@@ -64,12 +66,11 @@ public class MultiSubjectLinguisticSummary extends LinguisticSummary {
         double nfoCount1 = andCardinalityForGender(gender1, false);
         double nfoCount2 = andCardinalityForGender(gender2, false);
 
-        var value = ((1.0/M1) * nfoCount1) / (((1.0/M1) * nfoCount1) + ((1.0/M2) * nfoCount2));
+        var value = ((1.0 / M1) * nfoCount1) / (((1.0 / M1) * nfoCount1) + ((1.0 / M2) * nfoCount2));
 
         return getQuantifier().getLinguisticValue().getFuzzySet().getMembershipDegree(value);
     }
 
-    
 
     private Double getSecondFormValue() {
         char gender1 = subjects.get(0);
@@ -81,7 +82,7 @@ public class MultiSubjectLinguisticSummary extends LinguisticSummary {
         double nfoCount1 = andCardinalityForGender(gender1, false);
         double nfoCount2 = andCardinalityForGender(gender2, true);
 
-        var value = ((1.0/M1) * nfoCount1) / (((1.0/M1) * nfoCount1) + ((1.0/M2) * nfoCount2));
+        var value = ((1.0 / M1) * nfoCount1) / (((1.0 / M1) * nfoCount1) + ((1.0 / M2) * nfoCount2));
 
         return getQuantifier().getLinguisticValue().getFuzzySet().getMembershipDegree(value);
     }
@@ -96,13 +97,34 @@ public class MultiSubjectLinguisticSummary extends LinguisticSummary {
         double nfoCount1 = andCardinalityForGender(gender1, true);
         double nfoCount2 = andCardinalityForGender(gender2, false);
 
-        var value = ((1.0/M1) * nfoCount1) / (((1.0/M1) * nfoCount1) + ((1.0/M2) * nfoCount2));
+        var value = ((1.0 / M1) * nfoCount1) / (((1.0 / M1) * nfoCount1) + ((1.0 / M2) * nfoCount2));
 
         return getQuantifier().getLinguisticValue().getFuzzySet().getMembershipDegree(value);
     }
 
     private Double getFourthFormValue() {
-        return 1.0; // TO DO
+        double sum = 0.0;
+        for (BodyPerformance record : getRecords()) {
+//            for (Character gender : subjects) {
+                double min = Double.MAX_VALUE;
+                for (Summarizer summarizer : getSummarizers()) {
+                    double attrValue = record.getAttribute(summarizer.getName());
+                    double membership = summarizer.getLinguisticValue().getFuzzySet().getMembershipDegree(attrValue);
+                    if (min > membership) min = membership;
+                }
+
+                if (record.getGender() == subjects.getFirst()) {
+                    sum += 1.0 - min;
+//                    getSummarizers().getFirst().getLinguisticValue().getFuzzySet().getMembershipDegree(record);
+                } else {
+                    sum += 1.0;
+                }
+//            }
+        }
+        sum /= getRecords().size();
+
+
+        return 1.0 - sum;
     }
 
     @Override

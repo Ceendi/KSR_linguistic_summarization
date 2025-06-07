@@ -54,7 +54,7 @@
           "fuzzySet": { "type": "triangular", "params": [42.5, 57.5, 72.5] }
         },
         {
-          "name": "średnia",
+          "name": "o średniej wadze",
           "fuzzySet": { "type": "trapezoidal", "params": [60, 70, 85, 95] }
         },
         {

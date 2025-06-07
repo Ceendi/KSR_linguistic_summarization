@@ -24,6 +24,13 @@ public class LinguisticSummaryGenerator {
         List<List<Character>> genderLists = List.of(List.of('F', 'M'), List.of('M', 'F'));
         List<MultiSubjectType> forms = List.of(MultiSubjectType.SECOND_FORM, MultiSubjectType.THIRD_FORM);
 
+//        List<LinguisticSummary> singleSubject1stDegree = new ArrayList<>();
+//        List<LinguisticSummary> singleSubject2ndDegree = new ArrayList<>();
+//        List<MultiSubjectLinguisticSummary> multiSubject1stForm = new ArrayList<>();
+//        List<MultiSubjectLinguisticSummary> multiSubject2ndForm = new ArrayList<>();
+//        List<MultiSubjectLinguisticSummary> multiSubject3rdForm = new ArrayList<>();
+//        List<MultiSubjectLinguisticSummary> multiSubject4thForm = new ArrayList<>();
+
 
         //PIERWSZY STOPIEŃ
         for (Quantifier quantifier : quantifiers) {
@@ -39,30 +46,33 @@ public class LinguisticSummaryGenerator {
                 );
                 summaries.add(summary);
                 //WIELOPODMIOTOWE PIERWSZA I CZWARTA FORMA
-                for (List<Character> genderList : genderLists) {
-                    MultiSubjectLinguisticSummary multiSummary = new MultiSubjectLinguisticSummary(
-                            quantifier,
-                            Collections.emptyList(),
-                            summarizerCombination,
-                            records,
-                            SummaryType.MULTIPLESUBJECT,
-                            List.of(degreeOfTruth),
-                            genderList,
-                            MultiSubjectType.FIRST_FORM
-                    );
-                    multiSubjectSummaries.add(multiSummary);
-                    multiSummary = new MultiSubjectLinguisticSummary(
-                            null,
-                            Collections.emptyList(),
-                            summarizerCombination,
-                            records,
-                            SummaryType.MULTIPLESUBJECT,
-                            List.of(degreeOfTruth),
-                            genderList,
-                            MultiSubjectType.FOURTH_FORM
-                    );
-                    multiSubjectSummaries.add(multiSummary);
+                if (quantifier.getQuantifierType() == QuantifierType.RELATIVE) {
+                    for (List<Character> genderList : genderLists) {
+                        MultiSubjectLinguisticSummary multiSummary = new MultiSubjectLinguisticSummary(
+                                quantifier,
+                                Collections.emptyList(),
+                                summarizerCombination,
+                                records,
+                                SummaryType.MULTIPLESUBJECT,
+                                List.of(degreeOfTruth),
+                                genderList,
+                                MultiSubjectType.FIRST_FORM
+                        );
+                        multiSubjectSummaries.add(multiSummary);
+                        multiSummary = new MultiSubjectLinguisticSummary(
+                                null,
+                                Collections.emptyList(),
+                                summarizerCombination,
+                                records,
+                                SummaryType.MULTIPLESUBJECT,
+                                List.of(degreeOfTruth),
+                                genderList,
+                                MultiSubjectType.FOURTH_FORM
+                        );
+                        multiSubjectSummaries.add(multiSummary);
+                    }
                 }
+
 
             }
             //DRUGI STOPIEŃ
@@ -101,7 +111,6 @@ public class LinguisticSummaryGenerator {
                 }
             }
         }
-
 
 
         // wielopodmiotowe :DDDD

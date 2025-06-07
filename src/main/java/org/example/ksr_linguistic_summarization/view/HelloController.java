@@ -218,15 +218,27 @@ public class HelloController {
                 });
             }
             StringBuilder sb = new StringBuilder();
-            for (LinguisticSummary summary : summaries) {
-                if (summary instanceof MultiSubjectLinguisticSummary) {
-                    MultiSubjectLinguisticSummary multi = (MultiSubjectLinguisticSummary) summary;
-                    sb.append(multi.getLinguisticSummary()).append("\n");
-                } else {
-                    sb.append(summary.getLinguisticSummary()).append("\n");
-                }
 
+            sb.append("--- Jednopodmiotowe - forma 1 ---\n");
+            summaries.stream()
+                .filter(s -> !(s instanceof MultiSubjectLinguisticSummary) && (s.getQualifiers() == null || s.getQualifiers().isEmpty()))
+                .forEach(s -> sb.append(s.getLinguisticSummary()).append("\n"));
+
+            sb.append("--- Jednopodmiotowe - forma 2  ---\n");
+            summaries.stream()
+                    .filter(s -> !(s instanceof MultiSubjectLinguisticSummary) && s.getQualifiers() != null && !s.getQualifiers().isEmpty())
+                    .forEach(s -> sb.append(s.getLinguisticSummary()).append("\n"));
+
+
+            for (MultiSubjectType form : MultiSubjectType.values()) {
+                sb.append("--- Multi subject summary - " + form + " ---\n");
+                summaries.stream()
+                    .filter(s -> s instanceof MultiSubjectLinguisticSummary)
+                    .map(s -> (MultiSubjectLinguisticSummary) s)
+                    .filter(multi -> multi.getForm() == form)
+                    .forEach(multi -> sb.append(multi.getLinguisticSummary()).append("\n"));
             }
+
             resultTextArea.setText(sb.toString());
         } catch (Exception e) {
             resultTextArea.setText("Błąd generowania podsumowania: " + e.getMessage());
