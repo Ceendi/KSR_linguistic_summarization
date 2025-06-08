@@ -7,6 +7,7 @@ import org.example.ksr_linguistic_summarization.logic.utils.BodyPerformance;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class LinguisticSummaryGenerator {
     public static List<Degree> degrees = new ArrayList<>(List.of(
@@ -24,6 +25,19 @@ public class LinguisticSummaryGenerator {
 
         List<List<Summarizer>> firstDegreeSummarizers = generateCombination(summarizers);
         List<List<List<Summarizer>>> secondDegreePairs = generateDisjointPairs(summarizers);
+
+        firstDegreeSummarizers = firstDegreeSummarizers.stream()
+            .filter(LinguisticSummaryGenerator::hasUniqueNames)
+            .collect(Collectors.toList());
+
+        secondDegreePairs = secondDegreePairs.stream()
+            .filter(pair -> {
+                List<Summarizer> flat = Stream.concat(pair.get(0).stream(), pair.get(1).stream())
+                                              .collect(Collectors.toList());
+                return hasUniqueNames(flat);
+            })
+            .collect(Collectors.toList());
+
 
         List<MultiSubjectLinguisticSummary> multiSubjectSummaries = new ArrayList<>();
         List<List<Character>> genderLists = List.of(List.of('F', 'M'), List.of('M', 'F'));
@@ -50,7 +64,7 @@ public class LinguisticSummaryGenerator {
                         degrees
                 );
                 summaries.add(summary);
-                //WIELOPODMIOTOWE PIERWSZA I CZWARTA FORMA
+                //WIELOPODMIOTOWE PIERWSZA FORMA
                 if (quantifier.getQuantifierType() == QuantifierType.RELATIVE) {
                     for (List<Character> genderList : genderLists) {
                         MultiSubjectLinguisticSummary multiSummary = new MultiSubjectLinguisticSummary(
@@ -62,17 +76,6 @@ public class LinguisticSummaryGenerator {
                                 List.of(multiDegrees),
                                 genderList,
                                 MultiSubjectType.FIRST_FORM
-                        );
-                        multiSubjectSummaries.add(multiSummary);
-                        multiSummary = new MultiSubjectLinguisticSummary(
-                                null,
-                                Collections.emptyList(),
-                                summarizerCombination,
-                                records,
-                                SummaryType.MULTIPLESUBJECT,
-                                List.of(multiDegrees),
-                                genderList,
-                                MultiSubjectType.FOURTH_FORM
                         );
                         multiSubjectSummaries.add(multiSummary);
                     }
@@ -149,8 +152,22 @@ public class LinguisticSummaryGenerator {
 //
 //        }
 
-        //fourth form
-
+        //WIELOPODMIOTOWE CZWARTA FORMA
+        for (List<Summarizer> summarizerCombination : firstDegreeSummarizers) {
+            for (List<Character> genderList : genderLists) {
+                MultiSubjectLinguisticSummary multiSummary = new MultiSubjectLinguisticSummary(
+                        null,
+                        Collections.emptyList(),
+                        summarizerCombination,
+                        records,
+                        SummaryType.MULTIPLESUBJECT,
+                        List.of(multiDegrees),
+                        genderList,
+                        MultiSubjectType.FOURTH_FORM
+                );
+                multiSubjectSummaries.add(multiSummary);
+            }
+        }
 
         summaries.addAll(multiSubjectSummaries);
         return summaries;
@@ -196,6 +213,14 @@ public class LinguisticSummaryGenerator {
             }
         }
         return true;
+    }
+
+    private static boolean hasUniqueNames(List<Summarizer> list) {
+        long distinctCount = list.stream()
+                                 .map(Summarizer::getName)
+                                 .distinct()
+                                 .count();
+        return distinctCount == list.size();
     }
 
     public static void main(String[] args) {
