@@ -32,11 +32,27 @@ public class MainController {
     private TableColumn<DegreeWeight, String> degreeNameColumn;
     @FXML
     private TableColumn<DegreeWeight, Number> degreeWeightColumn;
+    @FXML
+    private ComboBox<String> sortDegreeComboBox;
     private List<BodyPerformance> data;
     private List<Quantifier> quantifiers;
     private List<LinguisticVariable> summarizerVariables;
     private final javafx.collections.ObservableList<DegreeWeight> degreeWeights = javafx.collections.FXCollections.observableArrayList();
 
+    private static final Map<String, String> DEGREE_NAME_TO_KEY = Map.ofEntries(
+        Map.entry("DegreeOfTruth", "T1"),
+        Map.entry("DegreeOfImprecision", "T2"),
+        Map.entry("DegreeOfCovering", "T3"),
+        Map.entry("DegreeOfAppropriateness", "T4"),
+        Map.entry("LengthOfASummary", "T5"),
+        Map.entry("DegreeOfQuantifierImprecision", "T6"),
+        Map.entry("DegreeOfQuantifierCardinality", "T7"),
+        Map.entry("DegreeOfSummarizerCardinality", "T8"),
+        Map.entry("DegreeOfQualifierImprecision", "T9"),
+        Map.entry("DegreeOfQualifierCardinality", "T10"),
+        Map.entry("LengthOfAQualifier", "T11"),
+        Map.entry("OptimalSummary", "To")
+    );
 
     @FXML
     public void initialize() {
@@ -112,6 +128,9 @@ public class MainController {
                 new DegreeWeight("T11", 0.07)
             );
             degreeTableView.setItems(degreeWeights);
+
+            sortDegreeComboBox.setItems(javafx.collections.FXCollections.observableArrayList(DEGREE_NAME_TO_KEY.keySet()));
+            sortDegreeComboBox.getSelectionModel().select("OptimalSummary");
         } catch (Exception e) {
             resultTextArea.setText("Błąd inicjalizacji: " + e.getMessage());
         }
@@ -182,17 +201,33 @@ public class MainController {
                 return;
             }
 
+            String selectedDegreeName = sortDegreeComboBox.getValue();
+            String sortDegree = DEGREE_NAME_TO_KEY.getOrDefault(selectedDegreeName, "To");
             StringBuilder sb = new StringBuilder();
 
             sb.append("--- Jednopodmiotowe - forma 1 ---\n");
             summaries.stream()
                 .filter(s -> !(s instanceof MultiSubjectLinguisticSummary) && (s.getQualifiers() == null || s.getQualifiers().isEmpty()))
+                .sorted((a, b) -> {
+                    Double va = a.getLinguisticSummaryValues().get(sortDegree);
+                    Double vb = b.getLinguisticSummaryValues().get(sortDegree);
+                    if (va == null) va = 0.0;
+                    if (vb == null) vb = 0.0;
+                    return -Double.compare(va, vb);
+                })
                 .forEach(s -> sb.append(s.getLinguisticSummary()).append("\n"));
 
             sb.append("--- Jednopodmiotowe - forma 2  ---\n");
             summaries.stream()
-                    .filter(s -> !(s instanceof MultiSubjectLinguisticSummary) && s.getQualifiers() != null && !s.getQualifiers().isEmpty())
-                    .forEach(s -> sb.append(s.getLinguisticSummary()).append("\n"));
+                .filter(s -> !(s instanceof MultiSubjectLinguisticSummary) && s.getQualifiers() != null && !s.getQualifiers().isEmpty())
+                .sorted((a, b) -> {
+                    Double va = a.getLinguisticSummaryValues().get(sortDegree);
+                    Double vb = b.getLinguisticSummaryValues().get(sortDegree);
+                    if (va == null) va = 0.0;
+                    if (vb == null) vb = 0.0;
+                    return -Double.compare(va, vb);
+                })
+                .forEach(s -> sb.append(s.getLinguisticSummary()).append("\n"));
 
             for (MultiSubjectType form : MultiSubjectType.values()) {
                 sb.append("--- Multi subject summary - ").append(form).append(" ---\n");
@@ -204,8 +239,6 @@ public class MainController {
                             double vb = b.getLinguisticSummaryValues().get("T1");
                             return -Double.compare(va, vb);
                         }).toList();
-
-
                 multiSummaries.forEach(multi -> sb.append(multi.getLinguisticSummary()).append("\n"));
             }
 

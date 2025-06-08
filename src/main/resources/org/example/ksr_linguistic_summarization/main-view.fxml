@@ -21,6 +21,9 @@
                 <TableColumn fx:id="degreeWeightColumn" text="Waga"/>
             </columns>
         </TableView>
+
+        <Label text="Sortuj wyniki po miarze:"/>
+        <ComboBox fx:id="sortDegreeComboBox" prefWidth="350"/>
         <Button text="Generuj podsumowanie" onAction="#onGenerateSummaryClick"/>
     </VBox>
     <VBox spacing="10.0">
