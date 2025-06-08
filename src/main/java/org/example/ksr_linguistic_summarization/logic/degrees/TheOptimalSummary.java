@@ -4,28 +4,30 @@ import lombok.Getter;
 import org.example.ksr_linguistic_summarization.logic.summarization.LinguisticSummary;
 
 import java.util.List;
+import java.util.Map;
 
 public class TheOptimalSummary implements Degree {
     @Getter
     private final String name = "To";
+    Map<String, Double> weights;
+    List<Degree> degrees;
 
-    private LinguisticSummary summary;
-    List<Degree> degrees = List.of(new DegreeOfTruth(), new DegreeOfImprecision(),
-            new DegreeOfCovering(), new DegreeOfAppropriateness(), new LengthOfASummary(),
-            new DegreeOfQuantifierImprecision(), new DegreeOfQuantifierCardinality(),
-            new DegreeOfSummarizerCardinality(), new DegreeOfQualifierCardinality(),
-            new DegreeOfQualifierImprecision(), new LengthOfAQualifier());
-    List<Double> weights = List.of(0.7, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03);
+    public TheOptimalSummary(List<Degree> degrees, Map<String, Double> weights) {
+        this.degrees = degrees;
+        this.weights = weights;
+    }
 
     @Override
     public double calculateDegree(LinguisticSummary summary) {
         double sum = 0.0;
         if (summary.getQualifiers() != null && summary.getQualifiers().isEmpty()) {
-            weights = List.of(0.7, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0., 0., 0.);
+            weights.put("T9", 0.);
+            weights.put("T10", 0.);
+            weights.put("T11", 0.);
         }
         for (int i = 0; i < 11; i++) {
-            sum += degrees.get(i).calculateDegree(summary) * weights.get(i);
+            sum += degrees.get(i).calculateDegree(summary) * weights.get(degrees.get(i).getName());
         }
-        return sum / weights.stream().reduce(0.0, Double::sum);
+        return sum / weights.values().stream().reduce(0.0, Double::sum);
     }
 }

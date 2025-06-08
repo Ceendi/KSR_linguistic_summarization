@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+
+<SplitPane dividerPositions="0.35" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="org.example.ksr_linguistic_summarization.view.MainController">
+    <VBox spacing="10.0">
+        <padding>
+            <Insets bottom="20.0" left="20.0" right="10.0" top="20.0"/>
+        </padding>
+        <Label text="Kwantyfikatory:"/>
+        <TreeView fx:id="quantifierTreeView" prefHeight="200" prefWidth="250"/>
+        <Label text="Sumaryzatory:"/>
+        <TreeView fx:id="summarizerTreeView" prefHeight="350" prefWidth="250"/>
+        <Label text="Miary podsumowania i wagi:"/>
+        <TableView fx:id="degreeTableView" prefWidth="250" editable="true">
+            <columns>
+                <TableColumn fx:id="degreeNameColumn" text="Miara" prefWidth="120"/>
+                <TableColumn fx:id="degreeWeightColumn" text="Waga"/>
+            </columns>
+        </TableView>
+        <Button text="Generuj podsumowanie" onAction="#onGenerateSummaryClick"/>
+    </VBox>
+    <VBox spacing="10.0">
+        <padding>
+            <Insets bottom="20.0" left="10.0" right="20.0" top="20.0"/>
+        </padding>
+        <Label text="Wyniki podsumowań:"/>
+        <TextArea fx:id="resultTextArea" prefWidth="500" prefHeight="600" wrapText="true" editable="false"/>
+    </VBox>
+</SplitPane>

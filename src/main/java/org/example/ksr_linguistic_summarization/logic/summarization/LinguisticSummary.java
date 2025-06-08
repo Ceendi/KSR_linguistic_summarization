@@ -31,36 +31,36 @@ public class LinguisticSummary {
         this.degrees = degrees;
     }
 
-    public List<Map<String, Double>> getLinguisticSummaryValues() {
-        var result = new ArrayList<Map<String, Double>>();
+    public Map<String, Double> getLinguisticSummaryValues() {
+        var result = new HashMap<String, Double>();
         for (Degree degree : degrees) {
-            Map<String, Double> map = new HashMap<>();
             var degreeValue = degree.calculateDegree(this);
-            map.put(degree.getName(), Math.round(degreeValue * 1000.0) / 1000.0);
-            result.add(map);
+            result.put(degree.getName(), Math.round(degreeValue * 1000.0) / 1000.0);
         }
         return result;
     }
 
     public String getLinguisticSummary() {
-        String summary = quantifier.getName() + " osób";
+        StringBuilder summary = new StringBuilder(quantifier.getName() + " osób");
         if (qualifiers != null && !qualifiers.isEmpty()) {
-            summary += ", która jest/posiada ";
-            summary += qualifiers.stream()
+            summary.append(", która jest/posiada ");
+            summary.append(qualifiers.stream()
                     .map(q -> q.getLinguisticValue().getName())
-                    .collect(Collectors.joining(" i "));
+                    .collect(Collectors.joining(" i ")));
         }
-        summary += " jest/posiada ";
-        summary += summarizers.stream()
+        summary.append(" jest/posiada ");
+        summary.append(summarizers.stream()
                 .map(s -> s.getLinguisticValue().getName())
-                .collect(Collectors.joining(" i ")) + " | ";
+                .collect(Collectors.joining(" i "))).append(" | ");
 
-        var values = getLinguisticSummaryValues();
-        for (var value : values) {
-            for (Map.Entry<String, Double> entry : value.entrySet()) {
-                summary += entry.getKey() + ": " + entry.getValue() + " | ";
+        Map<String, Double> values = getLinguisticSummaryValues();
+        List<String> order = List.of("T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "To");
+        for (String key : order) {
+            if (values.containsKey(key)) {
+                summary.append(key).append(": ").append(values.get(key)).append(" | ");
             }
         }
-        return summary;
+
+        return summary.toString();
     }
 }

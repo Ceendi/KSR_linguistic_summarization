@@ -1,21 +1,26 @@
 package org.example.ksr_linguistic_summarization.logic.summarization;
 
 
-import org.example.ksr_linguistic_summarization.logic.degrees.Degree;
+import org.example.ksr_linguistic_summarization.logic.degrees.*;
 
-import org.example.ksr_linguistic_summarization.logic.degrees.DegreeOfTruth;
 import org.example.ksr_linguistic_summarization.logic.utils.BodyPerformance;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class LinguisticSummaryGenerator {
-    public static List<LinguisticSummary> generateSummaries(List<Quantifier> quantifiers, List<Summarizer> summarizers, List<BodyPerformance> records, List<Degree> degrees) {
+    public static List<Degree> degrees = new ArrayList<>(List.of(
+            new DegreeOfTruth(), new DegreeOfImprecision(),
+            new DegreeOfAppropriateness(), new DegreeOfCovering(), new LengthOfASummary(),
+            new DegreeOfSummarizerCardinality(), new DegreeOfQualifierCardinality(), new DegreeOfQualifierImprecision(),
+            new DegreeOfQuantifierCardinality(), new DegreeOfQuantifierImprecision(), new LengthOfAQualifier()
+    ));
+
+    public static List<LinguisticSummary> generateSummaries(List<Quantifier> quantifiers, List<Summarizer> summarizers, List<BodyPerformance> records, Map<String, Double> weights) {
         List<LinguisticSummary> summaries = new ArrayList<>();
-        DegreeOfTruth degreeOfTruth = new DegreeOfTruth();
+        MultiSubjectDegrees multiDegrees = new MultiSubjectDegrees();
+
+        degrees.add(new TheOptimalSummary(degrees, weights));
 
         List<List<Summarizer>> firstDegreeSummarizers = generateCombination(summarizers);
         List<List<List<Summarizer>>> secondDegreePairs = generateDisjointPairs(summarizers);
@@ -54,7 +59,7 @@ public class LinguisticSummaryGenerator {
                                 summarizerCombination,
                                 records,
                                 SummaryType.MULTIPLESUBJECT,
-                                List.of(degreeOfTruth),
+                                List.of(multiDegrees),
                                 genderList,
                                 MultiSubjectType.FIRST_FORM
                         );
@@ -65,7 +70,7 @@ public class LinguisticSummaryGenerator {
                                 summarizerCombination,
                                 records,
                                 SummaryType.MULTIPLESUBJECT,
-                                List.of(degreeOfTruth),
+                                List.of(multiDegrees),
                                 genderList,
                                 MultiSubjectType.FOURTH_FORM
                         );
@@ -100,7 +105,7 @@ public class LinguisticSummaryGenerator {
                                     summCombinationD2,
                                     records,
                                     SummaryType.ONESUBJECT,
-                                    List.of(degreeOfTruth),
+                                    List.of(multiDegrees),
                                     genderList,
                                     form
                             );

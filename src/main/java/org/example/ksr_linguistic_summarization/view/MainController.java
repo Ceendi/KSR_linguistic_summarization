@@ -1,10 +1,9 @@
 package org.example.ksr_linguistic_summarization.view;
 
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTreeCell;
-import org.example.ksr_linguistic_summarization.logic.degrees.*;
+import javafx.scene.control.cell.TextFieldTableCell;
 import org.example.ksr_linguistic_summarization.logic.summarization.*;
 import org.example.ksr_linguistic_summarization.logic.utils.BodyPerformance;
 import org.example.ksr_linguistic_summarization.logic.utils.DataInitializer;
@@ -18,8 +17,9 @@ import org.example.ksr_linguistic_summarization.logic.summarization.LinguisticSu
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Map;
 
-public class HelloController {
+public class MainController {
     @FXML
     private TreeView<String> quantifierTreeView;
     @FXML
@@ -27,21 +27,23 @@ public class HelloController {
     @FXML
     private TextArea resultTextArea;
     @FXML
-    private TreeView<String> degreeTreeView;
+    private TableView<DegreeWeight> degreeTableView;
     @FXML
-    private ComboBox<String> sortDegreeComboBox;
-
-    private List<LinguisticVariable> allVariables;
+    private TableColumn<DegreeWeight, String> degreeNameColumn;
+    @FXML
+    private TableColumn<DegreeWeight, Number> degreeWeightColumn;
     private List<BodyPerformance> data;
     private List<Quantifier> quantifiers;
     private List<LinguisticVariable> summarizerVariables;
+    private final javafx.collections.ObservableList<DegreeWeight> degreeWeights = javafx.collections.FXCollections.observableArrayList();
+
 
     @FXML
     public void initialize() {
         try {
             data = DataInitializer.loadBodyPerformanceData();
             List<LinguisticVariableDTO> dtos = LinguisticVariableLoader.load();
-            allVariables = LinguisticVariableFactory.fromDTO(dtos, data);
+            List<LinguisticVariable> allVariables = LinguisticVariableFactory.fromDTO(dtos, data);
 
             // kwantyfikatory
             quantifiers = allVariables.stream()
@@ -88,31 +90,28 @@ public class HelloController {
             summarizerTreeView.setShowRoot(false);
             summarizerTreeView.setCellFactory(CheckBoxTreeCell.forTreeView());
 
-            // miary podsumowania
-            CheckBoxTreeItem<String> degreeRoot = new CheckBoxTreeItem<>("Wszystkie");
-            degreeRoot.setExpanded(true);
-            String[] degreeNames = {
-                "DegreeOfTruth",
-                "DegreeOfImprecision",
-                "DegreeOfCovering",
-                "DegreeOfAppropriateness",
-                "LengthOfASummary",
-                "DegreeOfQuantifierImprecision",
-                "DegreeOfQuantifierCardinality",
-                "DegreeOfSummarizerCardinality",
-                "DegreeOfQualifierImprecision",
-                "DegreeOfQualifierCardinality",
-                "LengthOfAQualifier",
-                "TheOptimalSummary",
-            };
-            for (String name : degreeNames) {
-                degreeRoot.getChildren().add(new CheckBoxTreeItem<>(name));
-            }
-            degreeTreeView.setRoot(degreeRoot);
-            degreeTreeView.setShowRoot(false);
-            degreeTreeView.setCellFactory(CheckBoxTreeCell.forTreeView());
-            sortDegreeComboBox.setItems(FXCollections.observableArrayList(degreeNames));
-            sortDegreeComboBox.getSelectionModel().clearSelection();
+            // W initialize()
+            degreeNameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+            degreeWeightColumn.setCellValueFactory(cellData -> cellData.getValue().weightProperty());
+            degreeWeightColumn.setCellFactory(TextFieldTableCell.forTableColumn(new javafx.util.converter.NumberStringConverter()));
+            degreeWeightColumn.setOnEditCommit(event -> {
+                event.getRowValue().setWeight(event.getNewValue().doubleValue());
+            });
+            degreeTableView.setEditable(true);
+            degreeWeights.addAll(
+                new DegreeWeight("T1", 0.3),
+                new DegreeWeight("T2", 0.07),
+                new DegreeWeight("T3", 0.07),
+                new DegreeWeight("T4", 0.07),
+                new DegreeWeight("T5", 0.07),
+                new DegreeWeight("T6", 0.07),
+                new DegreeWeight("T7", 0.07),
+                new DegreeWeight("T8", 0.07),
+                new DegreeWeight("T9", 0.07),
+                new DegreeWeight("T10", 0.07),
+                new DegreeWeight("T11", 0.07)
+            );
+            degreeTableView.setItems(degreeWeights);
         } catch (Exception e) {
             resultTextArea.setText("Błąd inicjalizacji: " + e.getMessage());
         }
@@ -163,60 +162,26 @@ public class HelloController {
         }
     }
 
-    private List<Degree> getSelectedDegrees() {
-        List<Degree> degrees = new java.util.ArrayList<>();
-        TreeItem<String> root = degreeTreeView.getRoot();
-        collectCheckedDegrees(root, degrees);
-        return degrees;
-    }
-    private void collectCheckedDegrees(TreeItem<String> node, List<Degree> degrees) {
-        if (node instanceof CheckBoxTreeItem<?> cb && cb.selectedProperty().get() && node.isLeaf()) {
-            String name = node.getValue();
-            switch (name) {
-                case "DegreeOfTruth" -> degrees.add(new DegreeOfTruth());
-                case "DegreeOfImprecision" -> degrees.add(new DegreeOfImprecision());
-                case "DegreeOfAppropriateness" -> degrees.add(new DegreeOfAppropriateness());
-                case "DegreeOfCovering" -> degrees.add(new DegreeOfCovering());
-                case "DegreeOfQuantifierImprecision" -> degrees.add(new DegreeOfQuantifierImprecision());
-                case "DegreeOfSummarizerCardinality" -> degrees.add(new DegreeOfSummarizerCardinality());
-                case "LengthOfASummary" -> degrees.add(new LengthOfASummary());
-                case "DegreeOfQualifierCardinality" -> degrees.add(new DegreeOfQualifierCardinality());
-                case "DegreeOfQualifierImprecision" -> degrees.add(new DegreeOfQualifierImprecision());
-                case "DegreeOfQuantifierCardinality" -> degrees.add(new DegreeOfQuantifierCardinality());
-                case "LengthOfAQualifier" -> degrees.add(new LengthOfAQualifier());
-                case "TheOptimalSummary" -> degrees.add(new TheOptimalSummary());
-            }
-        }
-        for (TreeItem<String> child : node.getChildren()) {
-            collectCheckedDegrees(child, degrees);
-        }
-    }
-
     @FXML
     protected void onGenerateSummaryClick() {
         try {
             List<Quantifier> selectedQuantifiers = getSelectedQuantifiers();
             List<Summarizer> selectedSummarizers = getSelectedSummarizers();
-            List<Degree> selectedDegrees = getSelectedDegrees();
-            String sortDegree = sortDegreeComboBox.getValue();
 
-            if (selectedQuantifiers.isEmpty() || selectedSummarizers.isEmpty() || selectedDegrees.isEmpty()) {
-                resultTextArea.setText("Wybierz przynajmniej jeden kwantyfikator, sumaryzator i miarę podsumowania.");
+            Map<String, Double> weights = degreeWeights.stream()
+                    .collect(java.util.stream.Collectors.toMap(DegreeWeight::getName, DegreeWeight::getWeight));
+
+            if (selectedQuantifiers.isEmpty() || selectedSummarizers.isEmpty()) {
+                resultTextArea.setText("Wybierz przynajmniej jeden kwantyfikator i sumaryzator.");
                 return;
             }
 
-            List<LinguisticSummary> summaries = LinguisticSummaryGenerator.generateSummaries(selectedQuantifiers, selectedSummarizers, data, selectedDegrees);
-            if (summaries == null || summaries.isEmpty()) {
+            List<LinguisticSummary> summaries = LinguisticSummaryGenerator.generateSummaries(selectedQuantifiers, selectedSummarizers, data, weights);
+            if (summaries.isEmpty()) {
                 resultTextArea.setText("Brak podsumowań dla wybranych opcji.");
                 return;
             }
-            if (sortDegree != null && !sortDegree.isEmpty()) {
-                summaries.sort((a, b) -> {
-                    double va = getDegreeValueByName(a, sortDegree);
-                    double vb = getDegreeValueByName(b, sortDegree);
-                    return -Double.compare(va, vb);
-                });
-            }
+
             StringBuilder sb = new StringBuilder();
 
             sb.append("--- Jednopodmiotowe - forma 1 ---\n");
@@ -229,28 +194,24 @@ public class HelloController {
                     .filter(s -> !(s instanceof MultiSubjectLinguisticSummary) && s.getQualifiers() != null && !s.getQualifiers().isEmpty())
                     .forEach(s -> sb.append(s.getLinguisticSummary()).append("\n"));
 
-
             for (MultiSubjectType form : MultiSubjectType.values()) {
-                sb.append("--- Multi subject summary - " + form + " ---\n");
-                summaries.stream()
-                    .filter(s -> s instanceof MultiSubjectLinguisticSummary)
-                    .map(s -> (MultiSubjectLinguisticSummary) s)
-                    .filter(multi -> multi.getForm() == form)
-                    .forEach(multi -> sb.append(multi.getLinguisticSummary()).append("\n"));
+                sb.append("--- Multi subject summary - ").append(form).append(" ---\n");
+                var multiSummaries = summaries.stream()
+                        .filter(s -> s instanceof MultiSubjectLinguisticSummary)
+                        .map(s -> (MultiSubjectLinguisticSummary) s)
+                        .filter(multi -> multi.getForm() == form).sorted((a, b) -> {
+                            double va = a.getLinguisticSummaryValues().get("T1");
+                            double vb = b.getLinguisticSummaryValues().get("T1");
+                            return -Double.compare(va, vb);
+                        }).toList();
+
+
+                multiSummaries.forEach(multi -> sb.append(multi.getLinguisticSummary()).append("\n"));
             }
 
             resultTextArea.setText(sb.toString());
         } catch (Exception e) {
             resultTextArea.setText("Błąd generowania podsumowania: " + e.getMessage());
         }
-    }
-
-    private double getDegreeValueByName(LinguisticSummary summary, String degreeName) {
-        for (Degree d : summary.getDegrees()) {
-            if (d.getClass().getSimpleName().equals(degreeName)) {
-                return d.calculateDegree(summary);
-            }
-        }
-        return Double.NaN;
     }
 }
