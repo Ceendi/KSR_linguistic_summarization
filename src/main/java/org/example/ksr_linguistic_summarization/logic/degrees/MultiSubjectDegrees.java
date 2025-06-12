@@ -101,17 +101,18 @@ public class MultiSubjectDegrees implements  Degree {
         Map<Character, List<BodyPerformance>> subjectsByGender = multi.getRecords().stream()
                 .collect(Collectors.groupingBy(BodyPerformance::getGender));
 
-        Character otherGender = multi.getSubjects().getFirst() == 'M' ? 'F' : 'M';
-
         for (BodyPerformance record : multi.getRecords()) {
             boolean calculateNext = true;
+
+            Character otherGender = multi.getSubjects().getFirst() == 'M' ? 'F' : 'M';
 
             double minFirst = Double.MAX_VALUE;
             for (Summarizer summarizer : multi.getSummarizers()) {
                 double attrValue = record.getAttribute(summarizer.getName());
                 double membership = summarizer.getLinguisticValue().getFuzzySet().getMembershipDegree(attrValue);
                 if (minFirst > membership) minFirst = membership;
-                boolean attr = subjectsByGender.get(otherGender).stream().anyMatch(o -> o.getAttribute(summarizer.getName()) == attrValue);
+                boolean attr = subjectsByGender.get(otherGender).stream()
+                        .anyMatch(o -> o.getAttribute(summarizer.getName()) == attrValue);
                 if (!attr) {
                     calculateNext = false;
                 }
@@ -120,14 +121,15 @@ public class MultiSubjectDegrees implements  Degree {
             double minSecond = 0.0;
 
             if (calculateNext) {
-                minSecond = Double.MAX_VALUE;
-                for (Summarizer summarizer : multi.getSummarizers()) {
-                    double attrValue = record.getAttribute(summarizer.getName());
-                    double membership = summarizer.getLinguisticValue().getFuzzySet().getMembershipDegree(attrValue);
-                    if (minSecond > membership) minSecond = membership;
-                }
+                minSecond = minFirst;
             }
-            sum += Math.min(1, 1-minFirst+minSecond);
+
+            if (record.getGender() == multi.getSubjects().getFirst()) {
+                sum += 1 - minFirst + minSecond * minFirst;
+            } else {
+                sum += 1 - minSecond + minFirst * minSecond;
+            }
+
         }
 
         sum /= multi.getRecords().size();
