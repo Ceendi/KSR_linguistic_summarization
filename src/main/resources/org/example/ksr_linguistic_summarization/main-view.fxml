@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 
 <SplitPane dividerPositions="0.35" xmlns:fx="http://javafx.com/fxml"
            fx:controller="org.example.ksr_linguistic_summarization.view.MainController">
@@ -32,5 +33,12 @@
         </padding>
         <Label text="Wyniki podsumowań:"/>
         <TextArea fx:id="resultTextArea" prefWidth="500" prefHeight="600" wrapText="true" editable="false"/>
+        <Button text="Dodaj własny sumaryzator" onAction="#onAddCustomSummarizerClick"/>
+        <Button text="Dodaj własny kwantyfikator" onAction="#onAddCustomQuantifierClick"/>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Liczba podsumowań do zapisania:"/>
+            <TextField fx:id="saveCountField" prefWidth="100"/>
+            <Button text="Zapisz do pliku" onAction="#onSaveSummariesClick"/>
+        </HBox>
     </VBox>
 </SplitPane>

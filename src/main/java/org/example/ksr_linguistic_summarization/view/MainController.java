@@ -4,9 +4,13 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.GridPane;
+import org.example.ksr_linguistic_summarization.logic.set.ContinuousSet;
+import org.example.ksr_linguistic_summarization.logic.set.FuzzySet;
 import org.example.ksr_linguistic_summarization.logic.summarization.*;
 import org.example.ksr_linguistic_summarization.logic.utils.BodyPerformance;
 import org.example.ksr_linguistic_summarization.logic.utils.DataInitializer;
+import org.example.ksr_linguistic_summarization.logic.utils.linguistic_variable.FuzzySetDTO;
 import org.example.ksr_linguistic_summarization.logic.utils.linguistic_variable.LinguisticVariableDTO;
 import org.example.ksr_linguistic_summarization.logic.utils.linguistic_variable.LinguisticVariableFactory;
 import org.example.ksr_linguistic_summarization.logic.utils.linguistic_variable.LinguisticVariableLoader;
@@ -18,6 +22,15 @@ import org.example.ksr_linguistic_summarization.logic.summarization.LinguisticSu
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Map;
+import java.util.Optional;
+import javafx.geometry.Insets;
+import java.util.ArrayList;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import javafx.stage.FileChooser;
+import java.util.Arrays;
 
 public class MainController {
     @FXML
@@ -34,6 +47,8 @@ public class MainController {
     private TableColumn<DegreeWeight, Number> degreeWeightColumn;
     @FXML
     private ComboBox<String> sortDegreeComboBox;
+    @FXML
+    private TextField saveCountField;
     private List<BodyPerformance> data;
     private List<Quantifier> quantifiers;
     private List<LinguisticVariable> summarizerVariables;
@@ -245,6 +260,461 @@ public class MainController {
             resultTextArea.setText(sb.toString());
         } catch (Exception e) {
             resultTextArea.setText("Błąd generowania podsumowania: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    protected void onAddCustomSummarizerClick() {
+        Dialog<LinguisticVariable> dialog = new Dialog<>();
+        dialog.setTitle("Dodaj własny sumaryzator");
+        dialog.setHeaderText("Wprowadź dane dla nowego sumaryzatora");
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        ComboBox<String> attributeCombo = new ComboBox<>();
+        attributeCombo.getItems().addAll(
+            "age", "heightCm", "weightKg", "bodyFatPercentage", "diastolic", "systolic",
+            "gripForce", "sitAndBendForwardCm", "sitUpsCounts", "broadJumpCm"
+        );
+        attributeCombo.setPromptText("Wybierz atrybut");
+
+        TextField nameField = new TextField();
+        nameField.setPromptText("Nazwa sumaryzatora");
+
+        ComboBox<String> functionTypeCombo = new ComboBox<>();
+        functionTypeCombo.getItems().addAll("triangular", "trapezoidal", "gaussian");
+        functionTypeCombo.setPromptText("Typ funkcji przynależności");
+
+        TextField paramAField = new TextField();
+        paramAField.setPromptText("Parametr a");
+        TextField paramBField = new TextField();
+        paramBField.setPromptText("Parametr b");
+        TextField paramCField = new TextField();
+        paramCField.setPromptText("Parametr c");
+        TextField paramDField = new TextField();
+        paramDField.setPromptText("Parametr d");
+
+        grid.add(new Label("Atrybut:"), 0, 0);
+        grid.add(attributeCombo, 1, 0);
+        grid.add(new Label("Nazwa:"), 0, 1);
+        grid.add(nameField, 1, 1);
+        grid.add(new Label("Typ funkcji:"), 0, 2);
+        grid.add(functionTypeCombo, 1, 2);
+        grid.add(new Label("Parametry:"), 0, 3);
+        grid.add(paramAField, 1, 3);
+        grid.add(paramBField, 1, 4);
+        grid.add(paramCField, 1, 5);
+        grid.add(paramDField, 1, 6);
+
+        paramAField.setVisible(false);
+        paramBField.setVisible(false);
+        paramCField.setVisible(false);
+        paramDField.setVisible(false);
+
+        functionTypeCombo.setOnAction(e -> {
+            String type = functionTypeCombo.getValue();
+            paramAField.setVisible(false);
+            paramBField.setVisible(false);
+            paramCField.setVisible(false);
+            paramDField.setVisible(false);
+
+            if (type != null) {
+                paramAField.setVisible(true);
+                paramBField.setVisible(true);
+                if ("gaussian".equals(type)) {
+                    paramAField.setPromptText("Średnia (m)");
+                    paramBField.setPromptText("Odchylenie standardowe (sigma)");
+                } else if ("triangular".equals(type)) {
+                    paramAField.setPromptText("Lewy punkt (a)");
+                    paramBField.setPromptText("Środkowy punkt (b)");
+                    paramCField.setPromptText("Prawy punkt (c)");
+                    paramCField.setVisible(true);
+                } else if ("trapezoidal".equals(type)) {
+                    paramAField.setPromptText("Lewy punkt (a)");
+                    paramBField.setPromptText("Lewy-środkowy punkt (b)");
+                    paramCField.setPromptText("Prawy-środkowy punkt (c)");
+                    paramDField.setPromptText("Prawy punkt (d)");
+                    paramCField.setVisible(true);
+                    paramDField.setVisible(true);
+                }
+            }
+        });
+
+        dialog.getDialogPane().setContent(grid);
+
+        ButtonType addButtonType = new ButtonType("Dodaj", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == addButtonType) {
+                try {
+                    String attribute = attributeCombo.getValue();
+                    if (attribute == null) {
+                        throw new IllegalArgumentException("Wybierz atrybut");
+                    }
+                    String name = nameField.getText();
+                    if (name == null || name.trim().isEmpty()) {
+                        throw new IllegalArgumentException("Wprowadź nazwę sumaryzatora");
+                    }
+                    String type = functionTypeCombo.getValue();
+                    if (type == null) {
+                        throw new IllegalArgumentException("Wybierz typ funkcji przynależności");
+                    }
+
+                    double a = Double.parseDouble(paramAField.getText());
+                    double b = Double.parseDouble(paramBField.getText());
+
+                    FuzzySetDTO fuzzySetDTO = new FuzzySetDTO();
+                    fuzzySetDTO.type = type;
+                    
+                    if ("trapezoidal".equals(type)) {
+                        double c = Double.parseDouble(paramCField.getText());
+                        double d = Double.parseDouble(paramDField.getText());
+                        fuzzySetDTO.params = new double[]{a, b, c, d};
+                    } else if ("gaussian".equals(type)) {
+                        fuzzySetDTO.params = new double[]{a, b}; // a = m, b = sigma
+                    } else {
+                        double c = Double.parseDouble(paramCField.getText());
+                        fuzzySetDTO.params = new double[]{a, b, c};
+                    }
+
+                    FuzzySet fuzzySet = LinguisticVariableFactory.createFuzzySet(fuzzySetDTO, new ArrayList<>());
+                    return new LinguisticVariable(attribute, new LinguisticValue(name, fuzzySet));
+                } catch (NumberFormatException ex) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Błąd");
+                    alert.setHeaderText("Nieprawidłowe dane");
+                    alert.setContentText("Wszystkie parametry muszą być liczbami.");
+                    alert.showAndWait();
+                } catch (Exception ex) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Błąd");
+                    alert.setHeaderText("Błąd podczas tworzenia sumaryzatora");
+                    alert.setContentText(ex.getMessage());
+                    alert.showAndWait();
+                }
+            }
+            return null;
+        });
+
+        Optional<LinguisticVariable> result = dialog.showAndWait();
+        result.ifPresent(newSummarizer -> {
+            summarizerVariables.add(newSummarizer);
+            updateSummarizerTreeView();
+        });
+    }
+
+    private void updateSummarizerTreeView() {
+        var grouped = summarizerVariables.stream().collect(Collectors.groupingBy(LinguisticVariable::getName));
+
+        CheckBoxTreeItem<String> summarizerRoot = new CheckBoxTreeItem<>("Wszystkie");
+        summarizerRoot.setExpanded(true);
+        for (var entry : grouped.entrySet()) {
+            CheckBoxTreeItem<String> category = new CheckBoxTreeItem<>(entry.getKey());
+            for (var v : entry.getValue()) {
+                CheckBoxTreeItem<String> item = new CheckBoxTreeItem<>(v.getLinguisticValue().getName());
+                category.getChildren().add(item);
+            }
+            summarizerRoot.getChildren().add(category);
+        }
+        summarizerTreeView.setRoot(summarizerRoot);
+    }
+
+    private List<Double> getSampleValues(String attributeName, List<BodyPerformance> data) {
+        return data.stream()
+                .map(bp -> bp.getAttribute(attributeName))
+                .collect(Collectors.toList());
+    }
+
+    @FXML
+    protected void onAddCustomQuantifierClick() {
+        Dialog<Quantifier> dialog = new Dialog<>();
+        dialog.setTitle("Dodaj własny kwantyfikator");
+        dialog.setHeaderText("Wprowadź dane dla nowego kwantyfikatora");
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField nameField = new TextField();
+        nameField.setPromptText("Nazwa kwantyfikatora");
+
+        ComboBox<String> functionTypeCombo = new ComboBox<>();
+        functionTypeCombo.getItems().addAll("triangular", "trapezoidal", "gaussian");
+        functionTypeCombo.setPromptText("Typ funkcji przynależności");
+
+        ComboBox<String> quantifierTypeCombo = new ComboBox<>();
+        quantifierTypeCombo.getItems().addAll("ABSOLUTE", "RELATIVE");
+        quantifierTypeCombo.setPromptText("Typ kwantyfikatora");
+
+        TextField paramAField = new TextField();
+        paramAField.setPromptText("Parametr a");
+        TextField paramBField = new TextField();
+        paramBField.setPromptText("Parametr b");
+        TextField paramCField = new TextField();
+        paramCField.setPromptText("Parametr c");
+        TextField paramDField = new TextField();
+        paramDField.setPromptText("Parametr d");
+
+        grid.add(new Label("Nazwa:"), 0, 0);
+        grid.add(nameField, 1, 0);
+        grid.add(new Label("Typ kwantyfikatora:"), 0, 1);
+        grid.add(quantifierTypeCombo, 1, 1);
+        grid.add(new Label("Typ funkcji:"), 0, 2);
+        grid.add(functionTypeCombo, 1, 2);
+        grid.add(new Label("Parametry:"), 0, 3);
+        grid.add(paramAField, 1, 3);
+        grid.add(paramBField, 1, 4);
+        grid.add(paramCField, 1, 5);
+        grid.add(paramDField, 1, 6);
+
+        paramAField.setVisible(false);
+        paramBField.setVisible(false);
+        paramCField.setVisible(false);
+        paramDField.setVisible(false);
+
+        functionTypeCombo.setOnAction(e -> {
+            String type = functionTypeCombo.getValue();
+            paramAField.setVisible(false);
+            paramBField.setVisible(false);
+            paramCField.setVisible(false);
+            paramDField.setVisible(false);
+
+            if (type != null) {
+                paramAField.setVisible(true);
+                paramBField.setVisible(true);
+                if ("gaussian".equals(type)) {
+                    paramAField.setPromptText("Średnia (m)");
+                    paramBField.setPromptText("Odchylenie standardowe (sigma)");
+                } else if ("triangular".equals(type)) {
+                    paramAField.setPromptText("Lewy punkt (a)");
+                    paramBField.setPromptText("Środkowy punkt (b)");
+                    paramCField.setPromptText("Prawy punkt (c)");
+                    paramCField.setVisible(true);
+                } else if ("trapezoidal".equals(type)) {
+                    paramAField.setPromptText("Lewy punkt (a)");
+                    paramBField.setPromptText("Lewy-środkowy punkt (b)");
+                    paramCField.setPromptText("Prawy-środkowy punkt (c)");
+                    paramDField.setPromptText("Prawy punkt (d)");
+                    paramCField.setVisible(true);
+                    paramDField.setVisible(true);
+                }
+            }
+        });
+
+        dialog.getDialogPane().setContent(grid);
+
+        ButtonType addButtonType = new ButtonType("Dodaj", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == addButtonType) {
+                try {
+                    String name = nameField.getText();
+                    if (name == null || name.trim().isEmpty()) {
+                        throw new IllegalArgumentException("Wprowadź nazwę kwantyfikatora");
+                    }
+                    String type = functionTypeCombo.getValue();
+                    if (type == null) {
+                        throw new IllegalArgumentException("Wybierz typ funkcji przynależności");
+                    }
+                    String quantifierType = quantifierTypeCombo.getValue();
+                    if (quantifierType == null) {
+                        throw new IllegalArgumentException("Wybierz typ kwantyfikatora");
+                    }
+
+                    double a = Double.parseDouble(paramAField.getText());
+                    double b = Double.parseDouble(paramBField.getText());
+
+
+                    if ("ABSOLUTE".equals(quantifierType)) {
+                        if (a < 0 || a > 13369 || b < 0 || b > 13369) {
+                            throw new IllegalArgumentException("Dla kwantyfikatora absolutnego wartości muszą być między 0 a 13369");
+                        }
+                    } else {
+                        if (a < 0 || a > 1 || b < 0 || b > 1) {
+                            throw new IllegalArgumentException("Dla kwantyfikatora względnego wartości muszą być między 0 a 1");
+                        }
+                    }
+
+                    FuzzySetDTO fuzzySetDTO = new FuzzySetDTO();
+                    fuzzySetDTO.type = type;
+                    
+                    if ("trapezoidal".equals(type)) {
+                        double c = Double.parseDouble(paramCField.getText());
+                        double d = Double.parseDouble(paramDField.getText());
+                        if ("ABSOLUTE".equals(quantifierType)) {
+                            if (c < 0 || c > 13369 || d < 0 || d > 13369) {
+                                throw new IllegalArgumentException("Dla kwantyfikatora absolutnego wartości muszą być między 0 a 13369");
+                            }
+                        } else {
+                            if (c < 0 || c > 1 || d < 0 || d > 1) {
+                                throw new IllegalArgumentException("Dla kwantyfikatora względnego wartości muszą być między 0 a 1");
+                            }
+                        }
+                        fuzzySetDTO.params = new double[]{a, b, c, d};
+                    } else if ("gaussian".equals(type)) {
+                        fuzzySetDTO.params = new double[]{a, b};
+                    } else {
+                        double c = Double.parseDouble(paramCField.getText());
+                        if ("ABSOLUTE".equals(quantifierType)) {
+                            if (c < 0 || c > 13369) {
+                                throw new IllegalArgumentException("Dla kwantyfikatora absolutnego wartości muszą być między 0 a 13369");
+                            }
+                        } else {
+                            if (c < 0 || c > 1) {
+                                throw new IllegalArgumentException("Dla kwantyfikatora względnego wartości muszą być między 0 a 1");
+                            }
+                        }
+                        fuzzySetDTO.params = new double[]{a, b, c};
+                    }
+
+                    FuzzySet fuzzySet = LinguisticVariableFactory.createFuzzySet(fuzzySetDTO, new ArrayList<>());
+                    if ("ABSOLUTE".equals(quantifierType)) {
+                        fuzzySet.setUniverseOfDiscourse(new ContinuousSet(0, 13369));
+                    } else {
+                        fuzzySet.setUniverseOfDiscourse(new ContinuousSet(0, 1));
+                    }
+
+                    return new Quantifier(name, new LinguisticValue(name, fuzzySet), QuantifierType.valueOf(quantifierType));
+                } catch (NumberFormatException ex) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Błąd");
+                    alert.setHeaderText("Nieprawidłowe dane");
+                    alert.setContentText("Wszystkie parametry muszą być liczbami.");
+                    alert.showAndWait();
+                } catch (Exception ex) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Błąd");
+                    alert.setHeaderText("Błąd podczas tworzenia kwantyfikatora");
+                    alert.setContentText(ex.getMessage());
+                    alert.showAndWait();
+                }
+            }
+            return null;
+        });
+
+        Optional<Quantifier> result = dialog.showAndWait();
+        result.ifPresent(newQuantifier -> {
+            quantifiers.add(newQuantifier);
+            updateQuantifierTreeView();
+        });
+    }
+
+    private void updateQuantifierTreeView() {
+        var abs = quantifiers.stream().filter(Quantifier::isAbsolute).toList();
+        var rel = quantifiers.stream().filter(q -> !q.isAbsolute()).toList();
+
+        CheckBoxTreeItem<String> quantRoot = new CheckBoxTreeItem<>("Wszystkie");
+        quantRoot.setExpanded(true);
+        CheckBoxTreeItem<String> absCat = new CheckBoxTreeItem<>("Absolutne");
+        for (var q : abs) {
+            absCat.getChildren().add(new CheckBoxTreeItem<>(q.getName()));
+        }
+        CheckBoxTreeItem<String> relCat = new CheckBoxTreeItem<>("Relatywne");
+        for (var q : rel) {
+            relCat.getChildren().add(new CheckBoxTreeItem<>(q.getName()));
+        }
+        quantRoot.getChildren().addAll(absCat, relCat);
+        quantifierTreeView.setRoot(quantRoot);
+    }
+
+    @FXML
+    protected void onSaveSummariesClick() {
+        try {
+            int count = Integer.parseInt(saveCountField.getText());
+            if (count <= 0) {
+                throw new IllegalArgumentException("Liczba podsumowań musi być większa od 0");
+            }
+
+            String text = resultTextArea.getText();
+            if (text == null || text.trim().isEmpty()) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Błąd");
+                alert.setHeaderText("Brak podsumowań");
+                alert.setContentText("Najpierw wygeneruj podsumowania przed zapisaniem do pliku.");
+                alert.showAndWait();
+                return;
+            }
+
+            List<String> allLines = Arrays.asList(text.split("\n"));
+            List<String> summaries = new ArrayList<>();
+            int summaryCount = 0;
+            int currentIndex = 0;
+
+            while (summaryCount < count && currentIndex < allLines.size()) {
+                String line = allLines.get(currentIndex).trim();
+                if (!line.isEmpty()) {
+                    if (line.contains("forma 1") || line.contains("forma 2") || line.contains("FIRST_FORM") ||
+                            line.contains("SECOND_FORM") || line.contains("THIRD_FORM") || line.contains("FOURTH_FORM")) {
+                        summaries.add(line);
+                    } else {
+                        summaries.add(line);
+                        summaryCount++;
+                    }
+                }
+                currentIndex++;
+            }
+
+            if (summaries.isEmpty()) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Błąd");
+                alert.setHeaderText("Brak podsumowań");
+                alert.setContentText("Nie znaleziono żadnych podsumowań do zapisania.");
+                alert.showAndWait();
+                return;
+            }
+
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Zapisz podsumowania");
+            fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Pliki tekstowe", "*.txt")
+            );
+            File file = fileChooser.showSaveDialog(saveCountField.getScene().getWindow());
+            
+            if (file != null) {
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                    writer.write("Podsumowania lingwistyczne (top " + count + "):\n\n");
+                    int summaryNumber = 1;
+                    for (String line : summaries) {
+                        if (line.contains("forma 1") || line.contains("forma 2") || line.contains("FIRST_FORM") ||
+                                line.contains("SECOND_FORM") || line.contains("THIRD_FORM") || line.contains("FOURTH_FORM")) {
+                            writer.write(line + "\n");
+                        } else {
+                            writer.write(summaryNumber + ". " + line + "\n");
+                            summaryNumber++;
+                        }
+                    }
+                }
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Sukces");
+                alert.setHeaderText("Zapisano podsumowania");
+                alert.setContentText("Pomyślnie zapisano " + summaryCount + " podsumowań do pliku.");
+                alert.showAndWait();
+            }
+        } catch (NumberFormatException ex) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Błąd");
+            alert.setHeaderText("Nieprawidłowa liczba");
+            alert.setContentText("Wprowadź poprawną liczbę podsumowań do zapisania.");
+            alert.showAndWait();
+        } catch (IllegalArgumentException ex) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Błąd");
+            alert.setHeaderText("Nieprawidłowa wartość");
+            alert.setContentText(ex.getMessage());
+            alert.showAndWait();
+        } catch (IOException ex) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Błąd");
+            alert.setHeaderText("Błąd zapisu");
+            alert.setContentText("Wystąpił błąd podczas zapisywania do pliku: " + ex.getMessage());
+            alert.showAndWait();
         }
     }
 }
